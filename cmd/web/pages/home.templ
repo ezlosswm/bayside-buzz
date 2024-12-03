@@ -1,0 +1,57 @@
+package pages 
+
+import (
+	"bayside-buzz/cmd/web/components"
+	"bayside-buzz/cmd/web/layouts"
+	"bayside-buzz/internal/domain"
+	"bayside-buzz/internal/database"
+)
+
+templ Home(pageData *domain.PageData, organizers *[]database.Organizer) {
+	@layouts.Layout(pageData) {
+		<!-- Hero Section -->
+		<div class="relative isolate w-full px-4 lg:px-8">
+			<div class="mx-auto max-w-2xl py-32 sm:py-48 lg:py-56">
+				<div class="text-center">
+					<h1 class="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
+						Welcome to Bayside Buzz
+					</h1>
+					<p class="mt-6 text-lg leading-8 text-gray-600">
+						Your one-stop solution for managing organizations and events
+					</p>
+					<div class="mt-10 flex items-center justify-center gap-x-6">
+						<a href="/contact" aria-label="Contact us" class="rounded-md bg-gray-800 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">
+							Contact us <span aria-hidden="true" aria-label="Right arrow">→</span>
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Main Content -->
+		<main class="relative w-full max-w-7xl mx-auto sm:px-6 lg:px-8 py-12">
+			<div class="grid lg:grid-cols-3 gap-8">
+				<!-- Organizations Section -->
+				<div class="lg:col-span-2 space-y-7">
+					<div>
+						<h2 class="text-2xl font-bold mb-2 pl-4">All Organizers</h2>
+						@components.OrganizerList(organizers)
+					</div>
+					<div>
+						<h2 class="text-2xl font-bold mb-2 pl-4">All Events</h2>
+						@components.EventGrid()
+					</div>
+				</div>
+				<!-- Sidebar -->
+				<aside class="space-y-8">
+					<!-- Ad Space -->
+					<div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+						<h3 class="text-lg font-semibold mb-4">Sponsored</h3>
+						<div class="h-48 bg-gray-100 rounded flex items-center justify-center text-gray-500">
+							Ad Space
+						</div>
+					</div>
+				</aside>
+			</div>
+		</main>
+	}
+}

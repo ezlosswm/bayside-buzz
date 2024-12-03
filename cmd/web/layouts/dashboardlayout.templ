@@ -1,0 +1,18 @@
+package layouts
+
+import (
+	"bayside-buzz/cmd/web/components"
+	"bayside-buzz/internal/domain"
+)
+
+templ DashboardLayout(pageData *domain.PageData) {
+	@Base(pageData) {
+		@components.DashboardHeader()
+		<div class="flex">
+			@components.DashboardNavbar()
+			<div class="mx-auto flex-2">
+				{ children... }
+			</div>
+		</div>
+	}
+}

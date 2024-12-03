@@ -1,0 +1,31 @@
+package layouts
+
+import "bayside-buzz/internal/domain"
+
+templ Base(pageData *domain.PageData) {
+	<!DOCTYPE html>
+	<html lang="en" class="h-screen">
+		<head>
+			<meta charset="utf-8"/>
+			<meta name="viewport" content="width=device-width,initial-scale=1"/>
+			<title>{ pageData.Title }</title>
+			<meta property="og:title" content={ pageData.Title }/>
+			<meta property="og:description" content={ pageData.Description }/>
+			<meta property="og:url" content={ pageData.URL }/>
+			<meta property="og:image" content={ pageData.Image }/>
+			<meta property="og:type" content={ pageData.Type }/>
+			<meta property="og:site_name" content="Bayside Buzz"/>
+			<meta property="og:locale" content="en_US"/>
+			// this needs to get fixed
+			<link rel="icon" type="image/x-icon" media="(prefers-color-scheme: dark)" href="../assets/images/bayside-logo-white.svg"/>
+			<link rel="icon" type="image/x-icon" media="(prefers-color-scheme: light)" href="../assets/images/bayside-logo-white.svg"/>
+			<link href="/assets/css/output.css" rel="stylesheet"/>
+			<script src="/assets/js/app.js"></script>
+			<script src="/assets/js/dashboard.js"></script>
+			<script src="/assets/js/htmx.min.js"></script>
+		</head>
+		<body class="min-h-screen bg-gray-50 flex flex-col">
+			{ children... }
+		</body>
+	</html>
+}

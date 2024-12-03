@@ -1,0 +1,13 @@
+package layouts 
+
+import "bayside-buzz/cmd/web/components"
+
+// import "bayside-buzz/cmd/web/components"
+
+templ Layout() {
+    @Base() {
+        @components.Navbar()
+            { children... }
+        @components.Footer()
+    }
+}

@@ -1,0 +1,22 @@
+package components
+
+import "bayside-buzz/internal/database"
+
+templ OrganizerList(organizers *[]database.Organizer) {
+	<section class="p-4 max-w-5xl mx-auto">
+		<div
+			class="grid gap-3 grid-flow-col auto-cols-[29%] sm:auto-cols-[21%] overflow-x-auto overscroll-contain no-scrollbar"
+		>
+			for _, organizer := range *organizers {
+				@OrganizerBubble(organizer)
+			}
+		</div>
+	</section>
+}
+
+templ OrganizerBubble(organizer database.Organizer) {
+	<div class="shadow-md-x rounded-lg flex flex-col items-center text-center">
+		<img class="size-24 rounded-full" src={ organizer.ImgUrl } alt={ organizer.OrganizerName + " Cover Image" }/>
+		<p class="text-sm text-black/60">{ organizer.OrganizerName }</p>
+	</div>
+}

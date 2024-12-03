@@ -1,0 +1,103 @@
+package components 
+
+templ EventTable() {
+	<table class="w-full table-fixed">
+		<thead>
+			<tr>
+				<th class="border-r p-1">Cover </th>
+				<th class="border-r p-1">Event </th>
+				<th class="border-r p-1">Organizer </th>
+				<th class="border-r p-1">Start Date </th>
+				<th class="hidden sm:block"></th>
+			</tr>
+		</thead>
+		<tbody>
+			@Event()
+			<!--Table /-->
+			<!-- space -->
+			<!-- space -->
+			<!-- space -->
+			<!-- space -->
+			<!-- space -->
+			<!-- this is gonna be the form when clicking the edit button
+     htmx -->
+			<div id="editEvent">
+				@EditEvent()
+			</div>
+		</tbody>
+	</table>
+}
+
+templ EditEvent() {
+	<tr class="text-sm hover:text-black/65">
+		<td class="p-1">
+			<!-- fix the alt -->
+			<img class="mx-auto size-12 rounded-full" src="../assets/images/hero.jpg" alt="Bubble"/>
+		</td>
+		<td class="p-1 space-y-1">
+			<!-- event title -->
+			<input
+				type="text"
+				name="event__title"
+				value="Two for One Drinks"
+				class="rounded-lg text-black/65 focus:text-black block cursor-pointer border border-gray-300 bg-transparent py-1 pl-2 placeholder:text-gray-400 sm:text-sm"
+			/>
+			<!-- event description: limit 200 char -->
+			<input
+				type="text"
+				name="event__description"
+				value="The same description"
+				class="rounded-lg text-black/65 md:w-full focus:text-black block cursor-pointer border border-gray-300 bg-transparent py-1 pl-2 placeholder:text-gray-400 sm:text-sm"
+			/>
+		</td>
+		<td class="p-1">
+			<input
+				type="text"
+				name="event__organizer"
+				value="Organizer"
+				class="rounded-lg text-black/65 focus:text-black block cursor-pointer border border-gray-300 bg-transparent py-1 pl-2 placeholder:text-gray-400 sm:text-sm"
+			/>
+		</td>
+		<td class="p-1">
+			<input
+				type="text"
+				name="event__date"
+				value="01/01/24"
+				class="rounded-lg text-black/65 focus:text-black block cursor-pointer border border-gray-300 bg-transparent py-1 pl-2 placeholder:text-gray-400 sm:text-sm"
+			/>
+		</td>
+		<td class="p-1 hidden sm:block">
+			<span
+				class="inline-flex overflow-hidden rounded-md border bg-white shadow-sm"
+			>
+				<button
+					class="inline-block border-e p-3 text-gray-700 hover:bg-gray-50 focus:relative"
+					title="Edit Product"
+				>
+					<svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 24 24">
+						<path fill="currentColor" d="M21 7L9 19l-5.5-5.5l1.41-1.41L9 16.17L19.59 5.59z"></path>
+					</svg>
+				</button>
+				<button
+					class="inline-block p-3 text-gray-700 hover:bg-gray-50 focus:relative"
+					title="Delete Product"
+				>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke-width="1.5"
+						stroke="currentColor"
+						class="size-4"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"
+						></path>
+					</svg>
+				</button>
+			</span>
+		</td>
+	</tr>
+}

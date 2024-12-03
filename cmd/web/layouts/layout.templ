@@ -1,0 +1,14 @@
+package layouts 
+
+import (
+	"bayside-buzz/cmd/web/components"
+	"bayside-buzz/internal/domain"
+)
+
+templ Layout(pageData *domain.PageData) {
+	@Base(pageData) {
+		@components.Navbar()
+		{ children... }
+		@components.Footer()
+	}
+}
