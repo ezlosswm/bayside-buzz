@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/gorilla/sessions"
 	_ "github.com/joho/godotenv/autoload"
 
 	"bayside-buzz/internal/database"
@@ -15,15 +16,22 @@ import (
 type Server struct {
 	port int
 
-	db *database.Queries
+	db    *database.Queries
+	store *sessions.CookieStore
 }
 
 func NewServer() *http.Server {
 	port, _ := strconv.Atoi(os.Getenv("PORT"))
+
+    session := sessions.NewCookieStore([]byte("WuW0S1yxsd"))
+    session.Options.HttpOnly = true
+    session.Options.SameSite = http.SameSiteLaxMode
+
 	NewServer := &Server{
 		port: port,
 
 		db: database.NewSQCL(),
+        store: session,
 	}
 
 	// Declare Server config

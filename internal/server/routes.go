@@ -30,12 +30,13 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.HandleFunc("/contact", s.ContactPage).Methods(http.MethodGet)
 
 	r.HandleFunc("/login", s.LoginPage).Methods(http.MethodGet, http.MethodPost)
+    r.HandleFunc("/logout", s.HandleLogout).Methods(http.MethodPost)
 	r.HandleFunc("/register", s.RegisterPage).Methods(http.MethodGet, http.MethodPost)
 
-	r.HandleFunc("/dashboard", s.DashboardPage)
-	r.HandleFunc("/dashboard/create_event", s.CreateEventPage)
-	r.HandleFunc("/dashboard/create_organizer", s.CreateOrganizerPage).Methods(http.MethodGet, http.MethodPost)
-	r.HandleFunc("/dashboard/create_organizer/{id:[0-9]+}", s.HandleDeleteOrganizer).Methods(http.MethodDelete)
+	r.HandleFunc("/dashboard", s.Authenticate(s.DashboardPage))
+	r.HandleFunc("/dashboard/create_event", s.Authenticate(s.CreateEventPage))
+	r.HandleFunc("/dashboard/create_organizer", s.Authenticate(s.CreateOrganizerPage)).Methods(http.MethodGet, http.MethodPost)
+	r.HandleFunc("/dashboard/create_organizer/{id:[0-9]+}", s.Authenticate(s.HandleDeleteOrganizer)).Methods(http.MethodDelete)
 
 	return r
 }

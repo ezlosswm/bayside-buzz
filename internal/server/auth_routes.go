@@ -12,11 +12,29 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+func (s *Server) HandleLogout(w http.ResponseWriter, r *http.Request) {
+	session, err := s.store.Get(r, "login")
+	if err != nil {
+		slog.Error("Error with getting session info.\n", err)
+		return
+	}
+
+	delete(session.Values, "userId")
+
+	if err := session.Save(r, w); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Add("HX-Redirect", "/login")
+}
+
 func (s *Server) LoginPage(w http.ResponseWriter, r *http.Request) {
 	var (
 		title = strings.Join([]string{"Login", SITE_NAME}, " - ")
 		url   = r.Host
 	)
+
 	const (
 		description = "Access your Bayside Breeze account to manage the events happening in Corozal Town, Belize."
 		pageType    = "website"
@@ -32,37 +50,55 @@ func (s *Server) LoginPage(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		if err := r.ParseForm(); err != nil {
 			slog.Error("error parsing registration form\n", err)
-			w.Header().Set("hx-refresh", "true")
+			w.Header().Add("HX-Refresh", "true")
 			return
 		}
 
 		email := r.FormValue("email")
 		password := r.FormValue("password")
 
-		if err := s.authenticateUser(email, password); err != nil {
-			slog.Error("error with authenticating the user", err)
+		user, err := s.authenticateUser(email, password)
+		if err != nil {
 			pages.Login(pageData, true).Render(context.Background(), w)
 			return
 		}
 
+		// CREATES THE SESSION
+		session, err := s.store.Get(r, "login")
+		if err != nil {
+			slog.Error("Failed to get session", "error", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+		
+		session.Values["userId"] = user.ID
+		slog.Info("Setting session userId", "userId", user.ID)
+
+		if err := session.Save(r, w); err != nil {
+			slog.Error("Failed to save session", "error", err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		slog.Info("Session saved successfully", "userId", user.ID)
+
 		// just testing redirects
-		w.Header().Add("hx-redirect", "/dashboard")
+		w.Header().Add("HX-Redirect", "/dashboard")
 	}
 }
 
-func (s *Server) authenticateUser(email, password string) error {
+func (s *Server) authenticateUser(email, password string) (*database.User, error) {
 	// Authenticate user
 	ctx := context.Background()
 	user, err := s.db.GetUser(ctx, email)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password)); err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return &user, nil
 }
 
 func (s *Server) RegisterPage(w http.ResponseWriter, r *http.Request) {
@@ -80,6 +116,7 @@ func (s *Server) RegisterPage(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == "GET" {
 		ctx := context.Background()
+
 		count, err := s.db.CountUsers(ctx)
 		if err != nil {
 			slog.Error("error counting user: \n", err)
@@ -96,7 +133,7 @@ func (s *Server) RegisterPage(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		if err := r.ParseForm(); err != nil {
 			slog.Error("error parsing registration form\n", err)
-			w.Header().Set("hx-refresh", "true")
+			w.Header().Add("HX-Refresh", "true")
 			return
 		}
 
@@ -125,6 +162,6 @@ func (s *Server) RegisterPage(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// just testing redirects
-		w.Header().Add("hx-redirect", "/login")
+		w.Header().Add("HX-Redirect", "/login")
 	}
 }

@@ -1,10 +1,31 @@
 # Project bayside-buzz
 
-One Paragraph of project description goes here
+Bayside Buzz is an event listing website with a dashboard for new listings. 
 
-## Getting Started
+## Pages
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+Home
+- Lists all posted events and available organizers for the events. 
+
+Single Event
+- Dynamic route that displays all information for an event.
+
+Contact 
+
+Login 
+
+Register 
+
+Dashboard (Private) 
+- Shows the total number of events & organizers 
+- Lists all events 
+
+Create Organizers (Private)
+- Allows you to create a new organizer 
+- Lists all organizers
+
+Create Event 
+- Creates a new event 
 
 ## MakeFile
 
@@ -37,3 +58,26 @@ Clean up binary from the last build:
 ```bash
 make clean
 ```
+
+Run migration up
+```bash
+make migrate-up
+```
+
+Rollback migrations
+```bash
+make migrate-rollback
+```
+
+Generates SQLc queries 
+```bash
+make sqlc-generate
+```
+
+## Tech Stack 
+
+- Go & Gorilla Mux
+- Templ 
+- Tailwind 
+- HTMX
+- SQLite3

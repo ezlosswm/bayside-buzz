@@ -13,3 +13,6 @@ SELECT * FROM users WHERE email = ?;
 
 -- name: CountUsers :one
 SELECT COUNT(*) FROM users;
+
+-- name: FindUser :one
+SELECT * FROM users WHERE id = ?;

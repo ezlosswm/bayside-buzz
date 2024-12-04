@@ -39,6 +39,22 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) error {
 	return err
 }
 
+const findUser = `-- name: FindUser :one
+SELECT id, name, email, password_hash FROM users WHERE id = ?
+`
+
+func (q *Queries) FindUser(ctx context.Context, id int64) (User, error) {
+	row := q.db.QueryRowContext(ctx, findUser, id)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Email,
+		&i.PasswordHash,
+	)
+	return i, err
+}
+
 const getUser = `-- name: GetUser :one
 SELECT id, name, email, password_hash FROM users WHERE email = ?
 `

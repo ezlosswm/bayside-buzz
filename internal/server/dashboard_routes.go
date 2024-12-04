@@ -6,6 +6,7 @@ import (
 	"bayside-buzz/internal/domain"
 	"context"
 	"io"
+	"log"
 	"log/slog"
 	"mime/multipart"
 	"net/http"
@@ -19,6 +20,8 @@ import (
 
 // Dashboard
 func (s *Server) DashboardPage(w http.ResponseWriter, r *http.Request) {
+	u, ok := r.Context().Value(contextKeyUser).(*database.User)
+
 	var (
 		url   = r.Host
 		title = strings.Join([]string{"Dashboard", SITE_NAME}, " - ")
@@ -32,17 +35,25 @@ func (s *Server) DashboardPage(w http.ResponseWriter, r *http.Request) {
 	pageData := domain.NewPageData(SITE_NAME, title, description, pageType, image, url)
 
 	ctx := context.Background()
-
 	if r.Method == "GET" {
-		totalOrganizers, _ := s.db.CountOrganizers(ctx)
+		// returns user struct
+		log.Println("user data in dashboard\n", u)
+		if ok {
+			totalOrganizers, _ := s.db.CountOrganizers(ctx)
 
-		results := domain.NewResults(totalOrganizers)
+			results := domain.NewResults(totalOrganizers)
 
-		dashboard.Dashboard(pageData, results).Render(context.Background(), w)
+			dashboard.Dashboard(pageData, results).Render(context.Background(), w)
+		} else {
+			w.Header().Set("HX-Redirect", "/login")
+			return
+		}
 	}
 }
 
 func (s *Server) CreateEventPage(w http.ResponseWriter, r *http.Request) {
+	_, ok := r.Context().Value(contextKeyUser).(*database.User)
+
 	var (
 		url   = r.Host
 		title = strings.Join([]string{"Create New Event", SITE_NAME}, " - ")
@@ -56,14 +67,21 @@ func (s *Server) CreateEventPage(w http.ResponseWriter, r *http.Request) {
 	pageData := domain.NewPageData(SITE_NAME, title, description, pageType, image, url)
 
 	if r.Method == "GET" {
-		dashboard.CreateEvent(pageData).Render(context.Background(), w)
+		if ok {
+			dashboard.CreateEvent(pageData).Render(context.Background(), w)
+		} else {
+			w.Header().Set("HX-Redirect", "/login")
+			return
+		}
+
 	}
 
 }
 
 // Organizer name is a unique value, make sure to handle error
 func (s *Server) CreateOrganizerPage(w http.ResponseWriter, r *http.Request) {
-	ctx := context.Background()
+	_, ok := r.Context().Value(contextKeyUser).(database.User)
+
 
 	var (
 		url   = r.Host
@@ -77,18 +95,29 @@ func (s *Server) CreateOrganizerPage(w http.ResponseWriter, r *http.Request) {
 
 	pageData := domain.NewPageData(SITE_NAME, title, description, pageType, image, url)
 
+	ctx := context.Background()
 	if r.Method == "GET" {
-		organizers, _ := s.db.GetOrganizers(ctx)
+		if ok {
+			organizers, _ := s.db.GetOrganizers(ctx)
 
-		dashboard.CreateOrganizer(pageData, &organizers).Render(context.Background(), w)
+			dashboard.CreateOrganizer(pageData, &organizers).Render(context.Background(), w)
+		} else {
+			w.Header().Set("HX-Redirect", "/login")
+			return
+		}
 	}
 
 	if r.Method == "POST" {
+		if !ok {
+			w.Header().Set("HX-Redirect", "/login")
+			return
+		}
+
 		r.Body = http.MaxBytesReader(w, r.Body, 10<<20)
 		if err := r.ParseMultipartForm(5 << 20); err != nil {
 			slog.Error("error parsing registration form\n", err)
 			http.Error(w, err.Error(), http.StatusBadRequest)
-			w.Header().Set("hx-refresh", "true")
+			w.Header().Set("HX-Refresh", "true")
 			return
 		}
 		defer r.MultipartForm.RemoveAll()
@@ -124,14 +153,21 @@ func (s *Server) CreateOrganizerPage(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		w.Header().Set("hx-refresh", "true")
+		w.Header().Set("HX-Refresh", "true")
 	}
 }
 
 func (s *Server) HandleDeleteOrganizer(w http.ResponseWriter, r *http.Request) {
-	ctx := context.Background()
+	// returns user struct
+	_, ok := r.Context().Value(contextKeyUser).(database.User)
 
+	ctx := context.Background()
 	if r.Method == "DELETE" {
+		if !ok {
+			w.Header().Set("HX-Redirect", "/login")
+			return
+		}
+
 		vars := mux.Vars(r)
 		idParam := vars["id"]
 
