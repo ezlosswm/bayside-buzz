@@ -7,6 +7,7 @@ package database
 
 import (
 	"context"
+	"database/sql"
 )
 
 const countOrganizers = `-- name: CountOrganizers :one
@@ -22,20 +23,26 @@ func (q *Queries) CountOrganizers(ctx context.Context) (int64, error) {
 
 const createOrganizer = `-- name: CreateOrganizer :exec
 INSERT INTO organizers (
-    organizer_name, description, img_url
+    organizer_name, description, value, img_url
 ) VALUES (
-  ?, ?, ?
+  ?, ?, ?, ?
 )
 `
 
 type CreateOrganizerParams struct {
 	OrganizerName string
 	Description   string
+	Value         sql.NullString
 	ImgUrl        string
 }
 
 func (q *Queries) CreateOrganizer(ctx context.Context, arg CreateOrganizerParams) error {
-	_, err := q.db.ExecContext(ctx, createOrganizer, arg.OrganizerName, arg.Description, arg.ImgUrl)
+	_, err := q.db.ExecContext(ctx, createOrganizer,
+		arg.OrganizerName,
+		arg.Description,
+		arg.Value,
+		arg.ImgUrl,
+	)
 	return err
 }
 
@@ -50,7 +57,7 @@ func (q *Queries) DeleteOrganizer(ctx context.Context, id int64) error {
 }
 
 const getOrganizers = `-- name: GetOrganizers :many
-SELECT id, organizer_name, description, img_url FROM organizers
+SELECT id, organizer_name, description, img_url, value FROM organizers
 `
 
 func (q *Queries) GetOrganizers(ctx context.Context) ([]Organizer, error) {
@@ -67,6 +74,7 @@ func (q *Queries) GetOrganizers(ctx context.Context) ([]Organizer, error) {
 			&i.OrganizerName,
 			&i.Description,
 			&i.ImgUrl,
+			&i.Value,
 		); err != nil {
 			return nil, err
 		}

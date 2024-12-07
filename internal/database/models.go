@@ -4,11 +4,16 @@
 
 package database
 
+import (
+	"database/sql"
+)
+
 type Organizer struct {
 	ID            int64
 	OrganizerName string
 	Description   string
 	ImgUrl        string
+	Value         sql.NullString
 }
 
 type User struct {

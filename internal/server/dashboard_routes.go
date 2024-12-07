@@ -4,14 +4,10 @@ import (
 	"bayside-buzz/cmd/web/pages/dashboard"
 	"bayside-buzz/internal/database"
 	"bayside-buzz/internal/domain"
+	"bayside-buzz/internal/lib"
 	"context"
-	"io"
-	"log"
 	"log/slog"
-	"mime/multipart"
 	"net/http"
-	"os"
-	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -20,7 +16,7 @@ import (
 
 // Dashboard
 func (s *Server) DashboardPage(w http.ResponseWriter, r *http.Request) {
-	u, ok := r.Context().Value(contextKeyUser).(*database.User)
+	_, ok := r.Context().Value(contextKeyUser).(*database.User)
 
 	var (
 		url   = r.Host
@@ -37,7 +33,6 @@ func (s *Server) DashboardPage(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 	if r.Method == "GET" {
 		// returns user struct
-		log.Println("user data in dashboard\n", u)
 		if ok {
 			totalOrganizers, _ := s.db.CountOrganizers(ctx)
 
@@ -68,20 +63,75 @@ func (s *Server) CreateEventPage(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == "GET" {
 		if ok {
-			dashboard.CreateEvent(pageData).Render(context.Background(), w)
+			ctx := context.Background()
+			organizers, _ := s.db.GetOrganizers(ctx)
+			dashboard.CreateEvent(pageData, &organizers).Render(context.Background(), w)
 		} else {
 			w.Header().Set("HX-Redirect", "/login")
 			return
 		}
+	}
 
+	if r.Method == "POST" {
+		if !ok {
+			w.Header().Set("HX-Redirect", "/login")
+			return
+		}
+
+		r.Body = http.MaxBytesReader(w, r.Body, 10<<20)
+		if err := r.ParseMultipartForm(5 << 20); err != nil {
+			slog.Error("error parsing registration form\n", err)
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			w.Header().Set("HX-Refresh", "true")
+			return
+		}
+		defer r.MultipartForm.RemoveAll()
+
+		eventTitle := r.FormValue("event__title")
+		eventDesc := r.FormValue("event__description")
+		eventDate := r.FormValue("event__date")
+		eventFrequency := r.FormValue("event__frequency")
+		eventOrganizer := r.FormValue("event__organizer")
+
+		file, fileHeader, err := r.FormFile("cover__img")
+		if err != nil {
+			slog.Error("err here", err)
+			http.Error(w, "Unable to retrieve file.", http.StatusInternalServerError)
+			return
+		}
+		defer file.Close()
+		if err != nil {
+			http.Error(w, "Unable to read file.", http.StatusInternalServerError)
+			return
+		}
+
+		imgPath, err := lib.FileUpload("events", file, *fileHeader)
+		if err != nil {
+			http.Error(w, "Unable to create file.", http.StatusInternalServerError)
+			return
+		}
+
+		type f struct {
+			t, d, e, f, o, p string
+		}
+
+		ff := f{
+			t: eventTitle,
+			d: eventDesc,
+			e: eventDate,
+			f: eventFrequency,
+			o: eventOrganizer,
+			p: imgPath,
+		}
+
+		slog.Info("event information\n\n", ff)
 	}
 
 }
 
 // Organizer name is a unique value, make sure to handle error
 func (s *Server) CreateOrganizerPage(w http.ResponseWriter, r *http.Request) {
-	_, ok := r.Context().Value(contextKeyUser).(database.User)
-
+	_, ok := r.Context().Value(contextKeyUser).(*database.User)
 
 	var (
 		url   = r.Host
@@ -108,11 +158,6 @@ func (s *Server) CreateOrganizerPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method == "POST" {
-		if !ok {
-			w.Header().Set("HX-Redirect", "/login")
-			return
-		}
-
 		r.Body = http.MaxBytesReader(w, r.Body, 10<<20)
 		if err := r.ParseMultipartForm(5 << 20); err != nil {
 			slog.Error("error parsing registration form\n", err)
@@ -136,15 +181,18 @@ func (s *Server) CreateOrganizerPage(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		imgPath, err := fileUpload(file, *fileHeader)
+		imgPath, err := lib.FileUpload("organizers", file, *fileHeader)
 		if err != nil {
 			http.Error(w, "Unable to create file.", http.StatusInternalServerError)
 			return
 		}
 
+		value := lib.OrganizerToValue(orgName)
+
 		newOrganizer := database.CreateOrganizerParams{
 			OrganizerName: orgName,
 			Description:   orgDesc,
+			Value:         value,
 			ImgUrl:        imgPath,
 		}
 
@@ -159,7 +207,7 @@ func (s *Server) CreateOrganizerPage(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) HandleDeleteOrganizer(w http.ResponseWriter, r *http.Request) {
 	// returns user struct
-	_, ok := r.Context().Value(contextKeyUser).(database.User)
+	_, ok := r.Context().Value(contextKeyUser).(*database.User)
 
 	ctx := context.Background()
 	if r.Method == "DELETE" {
@@ -182,34 +230,4 @@ func (s *Server) HandleDeleteOrganizer(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-}
-
-func fileUpload(file multipart.File, fileHeader multipart.FileHeader) (string, error) {
-	// create file
-	orgDir := "/assets/images/organizers/"
-	basePath := "cmd/web"
-	// baseDir :="../../cmd/web"
-
-	sanitizedFileName := filepath.Base(fileHeader.Filename)
-	if err := os.MkdirAll(basePath+orgDir, os.ModePerm); err != nil {
-		slog.Error("Failed to create directories", err)
-		return "", err
-	}
-
-	imgPath := strings.Join([]string{orgDir, sanitizedFileName}, "")
-
-	imgOut, err := os.Create(basePath + imgPath)
-	if err != nil {
-		slog.Error("err with path too", err)
-		return "", err
-	}
-	defer imgOut.Close()
-
-	_, err = io.Copy(imgOut, file)
-	if err != nil {
-		slog.Error("err here too", err)
-		return "", nil
-	}
-
-	return imgPath, nil
 }

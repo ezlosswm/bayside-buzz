@@ -2,13 +2,16 @@ package dashboard
 
 import (
 	"bayside-buzz/cmd/web/layouts"
+	"bayside-buzz/internal/database"
 	"bayside-buzz/internal/domain"
 )
 
-templ CreateEvent(pageData *domain.PageData) {
+templ CreateEvent(pageData *domain.PageData, organizers *[]database.Organizer) {
 	@layouts.DashboardLayout(pageData) {
-		<div class="mt-16 sm:mt-0 max-w-3xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+		<div class="mt-16 sm:mt-0 w-full max-w-3xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
 			<form
+				enctype="multipart/form-data"
+				hx-post="/dashboard/create_event"
 				class="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl md:col-span-2"
 			>
 				<div class="px-4 py-6 sm:p-8">
@@ -133,14 +136,7 @@ templ CreateEvent(pageData *domain.PageData) {
 									name="event__organizer"
 									class="mt-2 w-full text-sm rounded-lg border-gray-300"
 								>
-									<option value="">Please select</option>
-									<option value="JM">John Mayer</option>
-									<option value="SRV">Stevie Ray Vaughn</option>
-									<option value="JH">Jimi Hendrix</option>
-									<option value="BBK">B.B King</option>
-									<option value="AK">Albert King</option>
-									<option value="BG">Buddy Guy</option>
-									<option value="EC">Eric Clapton</option>
+									@organizerSelect(organizers)
 								</select>
 							</div>
 						</div>
@@ -164,5 +160,12 @@ templ CreateEvent(pageData *domain.PageData) {
 				</div>
 			</form>
 		</div>
+	}
+}
+
+templ organizerSelect(organizers *[]database.Organizer) {
+	<option value="">Please select</option>
+	for _, o := range *organizers {
+		<option value={ o.Value.String }>{ o.OrganizerName }</option>
 	}
 }

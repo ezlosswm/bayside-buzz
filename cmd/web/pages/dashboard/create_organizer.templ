@@ -115,7 +115,7 @@ templ CreateOrganizer(pageData *domain.PageData, organizers *[]database.Organize
 				</div>
 			</form>
 		</div>
-		<table id="organizer-table" class="w-full max-w-8xl mx-auto table-fixed">
+		<table id="organizer-table" class="border border-red-400 text-center w-full max-w-7xl mx-auto table-fixed">
 			<thead>
 				<tr>
 					<th class="border-r p-1">Image </th>
@@ -135,7 +135,7 @@ templ CreateOrganizer(pageData *domain.PageData, organizers *[]database.Organize
 templ OrganizerTable(organizer *database.Organizer) {
 	<tr hx-swap="delete" id={ "event-" + fmt.Sprintf("%v", organizer.ID) }>
 		<td class="p-1">
-			<img class="mx-auto size-12 rounded-full" src={ organizer.ImgUrl } alt={ organizer.OrganizerName + " Cover Image" }/>
+			<img class="mx-auto shadow size-12 rounded-full" src={ organizer.ImgUrl } alt={ organizer.OrganizerName + " Cover Image" }/>
 		</td>
 		<td class="p-1">{ organizer.OrganizerName } </td>
 		<td class="p-1">
