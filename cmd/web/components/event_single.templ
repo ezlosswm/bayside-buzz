@@ -1,16 +1,18 @@
 package components
 
-templ Event() {
+import "bayside-buzz/internal/database"
+
+templ Event(event database.Event) {
 	<tr class="text-sm hover:text-black/65">
 		<td class="p-1">
-			<img class="mx-auto size-12 rounded-full" src="../assets/images/hero.jpg" alt="Bubble"/>
+			<img class="mx-auto size-12 rounded-full" src={ event.Imgpath } alt="Bubble"/>
 		</td>
 		<td class="p-1">
-			<div class="text-black/65">Two For One Drinks</div>
-			<p>Description goes here Description goes here Description goes here</p>
+			<div class="text-black/65">{ event.Title }</div>
+			<p>{ event.Description }</p>
 		</td>
-		<td class="text-center p-1">Pancho's Drink House </td>
-		<td class="text-center p-1">01/01/24 </td>
+		<td class="text-center p-1">{ event.Organizer }</td>
+		<td class="text-center p-1">{ event.Date.Format("Jan-01-2000") }</td>
 		<td class="p-1 hidden text-center sm:block">
 			<span
 				class="inline-flex overflow-hidden rounded-md border bg-white shadow-sm"

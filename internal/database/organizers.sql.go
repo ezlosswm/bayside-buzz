@@ -24,8 +24,8 @@ func (q *Queries) CountOrganizers(ctx context.Context) (int64, error) {
 const createOrganizer = `-- name: CreateOrganizer :exec
 INSERT INTO organizers (
     organizer_name, description, value, img_url
-) VALUES (
-  ?, ?, ?, ?
+    ) VALUES (
+    ?, ?, ?, ?
 )
 `
 

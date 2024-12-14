@@ -7,9 +7,8 @@ import (
 	"bayside-buzz/internal/domain"
 )
 
-templ Home(pageData *domain.PageData, organizers *[]database.Organizer) {
+templ Home(pageData *domain.PageData, events []database.GetEventsWithTagsRow, organizers *[]database.Organizer) {
 	@layouts.Layout(pageData) {
-		<!-- Hero Section -->
 		<div class="relative isolate w-full px-4 lg:px-8">
 			<div class="mx-auto max-w-2xl py-32 sm:py-48 lg:py-56">
 				<div class="text-center">
@@ -27,10 +26,8 @@ templ Home(pageData *domain.PageData, organizers *[]database.Organizer) {
 				</div>
 			</div>
 		</div>
-		<!-- Main Content -->
 		<main class="relative w-full max-w-7xl mx-auto sm:px-6 lg:px-8 py-12">
-			<div class="grid lg:grid-cols-3 gap-8">
-				<!-- Organizations Section -->
+			<div class="grid lg:grid-cols-2 gap-8">
 				<div class="lg:col-span-2 space-y-7">
 					<div>
 						<h2 class="text-2xl font-bold mb-2 pl-4">All Organizers</h2>
@@ -38,12 +35,15 @@ templ Home(pageData *domain.PageData, organizers *[]database.Organizer) {
 					</div>
 					<div>
 						<h2 class="text-2xl font-bold mb-2 pl-4">All Events</h2>
-						@components.EventGrid()
+						<section class="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
+							for _, event := range events {
+								@components.Card(event)
+							}
+						</section>
 					</div>
 				</div>
 				<!-- Sidebar -->
-				<aside class="space-y-8">
-					<!-- Ad Space -->
+				<aside class="hidden space-y-8">
 					<div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
 						<h3 class="text-lg font-semibold mb-4">Sponsored</h3>
 						<div class="h-48 bg-gray-100 rounded flex items-center justify-center text-gray-500">

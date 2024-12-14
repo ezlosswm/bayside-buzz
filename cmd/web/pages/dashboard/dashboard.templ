@@ -3,10 +3,11 @@ package dashboard
 import (
 	"bayside-buzz/cmd/web/components"
 	"bayside-buzz/cmd/web/layouts"
+	"bayside-buzz/internal/database"
 	"bayside-buzz/internal/domain"
 )
 
-templ Dashboard(pageData *domain.PageData, results *domain.Results) {
+templ Dashboard(pageData *domain.PageData, events []database.Event, results *domain.Results) {
 	@layouts.DashboardLayout(pageData) {
 		<div class="bg-white shadow rounded-lg">
 			@components.Results(results)
@@ -16,7 +17,7 @@ templ Dashboard(pageData *domain.PageData, results *domain.Results) {
 			<div class="px-6 py-5 border-b border-gray-200">
 				<h2 class="text-lg font-medium text-gray-900">Events</h2>
 			</div>
-			@components.EventTable()
+			@components.EventTable(events)
 		</div>
 	}
 }

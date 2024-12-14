@@ -1,8 +1,8 @@
 -- name: CreateUser :exec
 INSERT INTO users (
     name, email, password_hash
-) VALUES (
-  ?, ?, ?
+    ) VALUES (
+    ?, ?, ?
 );
 
 -- name: GetUsers :many 

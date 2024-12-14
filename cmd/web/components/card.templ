@@ -1,54 +1,45 @@
 package components
 
-templ Card() {
+import "bayside-buzz/internal/database"
+
+templ Card(event database.GetEventsWithTagsRow) {
 	<div
 		class="text-black text base rounded-lg border border-gray-200 grid h-[40rem]"
 	>
-		<!-- header -->
 		<div
 			class="text-sm px-4 py-2 border-2 border-white rounded-lg bg-neutral-100/60 w-full flex justify-between items-center"
 		>
-			<h3 id="gonna-be-custom-title" class="font-bold text-black/60">
-				<!-- a tag needs to be disabled until a page for each organizer is made -->
-				<a href="/" class="hover:underline hover:text-sky-600">
-					Pancho's Drink House
-				</a>
+			<h3 class="font-bold text-black/60">
+				<p class="hover:underline hover:text-sky-600">
+					{ event.Organizer }
+				</p>
 			</h3>
-			<h3 id="date" class="text-black/60">01/01/24</h3>
+			<h3 class="text-black/60">{ event.Date.Format("Jan-01-2001") }</h3>
 		</div>
 		<img
 			class="object-cover h-64 w-full"
-			src="../assets/images/hero.jpg"
+			src={ event.Imgpath }
 			alt="Custom card"
 		/>
-		<!-- Description -->
 		<div class="p-4 space-y-5 text-center sm:text-start">
 			<h2 class="hover:text-sky-500 text-xl font-bold leading-9">
-				<!-- dynamic route leading to it's seperate page -->
-				<a class="hover:underline" href="/event">Two For One Drinks </a>
+				<a class="hover:underline" href={ templ.URL(NewURL(event.Eventid)) }>{ event.Title }</a>
 			</h2>
-			<!-- 200 char limit -->
-			<p class="leading-5 text-black/80">
-				This is more thank likely going to be limited to a certain amount of
-				characters I’m thinking maybe 120 characters. Need count it in
-				development. sdklfja fjf lkfkl jfklj jlkasd lksd jf
-			</p>
+			<div class="h-40">
+				<p class="leading-5 text-black/80">
+					{ event.Description }
+					{ event.Description }
+					{ event.Description }
+				</p>
+			</div>
 			<div class="flex flex-wrap gap-2">
-				<span
-					class="inline-flex items-center rounded-full bg-gray-100 px-3 py-1 text-sm font-medium text-gray-600"
-				>
-					Drinks
-				</span>
-				<span
-					class="inline-flex items-center rounded-full bg-gray-100 px-3 py-1 text-sm font-medium text-gray-600"
-				>
-					Happy Hour
-				</span>
-				<span
-					class="inline-flex items-center rounded-full bg-gray-100 px-3 py-1 text-sm font-medium text-gray-600"
-				>
-					Social
-				</span>
+				for _, t := range ToSlice(event.Tags.(string)) {
+					<span
+						class="inline-flex items-center rounded-full bg-gray-100 px-3 py-1 text-xs sm:text-sm font-medium text-gray-600"
+					>
+						{ t }
+					</span>
+				}
 			</div>
 		</div>
 	</div>

@@ -23,8 +23,8 @@ func (q *Queries) CountUsers(ctx context.Context) (int64, error) {
 const createUser = `-- name: CreateUser :exec
 INSERT INTO users (
     name, email, password_hash
-) VALUES (
-  ?, ?, ?
+    ) VALUES (
+    ?, ?, ?
 )
 `
 

@@ -6,10 +6,12 @@ import (
 	"bayside-buzz/internal/domain"
 	"bayside-buzz/internal/lib"
 	"context"
+	"database/sql"
 	"log/slog"
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gorilla/mux"
 )
@@ -34,11 +36,23 @@ func (s *Server) DashboardPage(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		// returns user struct
 		if ok {
+            // getting event data begin 
+            e, err := s.db.GetEvents(context.Background())
+            if err != nil {
+                slog.Error("error getting event data\n", e)
+            }
+            slog.Info("events data\n", e)
+
+            // getting event data ends
+            
+
+
+
 			totalOrganizers, _ := s.db.CountOrganizers(ctx)
 
 			results := domain.NewResults(totalOrganizers)
 
-			dashboard.Dashboard(pageData, results).Render(context.Background(), w)
+			dashboard.Dashboard(pageData, e, results).Render(context.Background(), w)
 		} else {
 			w.Header().Set("HX-Redirect", "/login")
 			return
@@ -47,7 +61,7 @@ func (s *Server) DashboardPage(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) CreateEventPage(w http.ResponseWriter, r *http.Request) {
-	_, ok := r.Context().Value(contextKeyUser).(*database.User)
+	user, ok := r.Context().Value(contextKeyUser).(*database.User)
 
 	var (
 		url   = r.Host
@@ -93,12 +107,16 @@ func (s *Server) CreateEventPage(w http.ResponseWriter, r *http.Request) {
 		eventFrequency := r.FormValue("event__frequency")
 		eventOrganizer := r.FormValue("event__organizer")
 
+		// Get all selected tags
+		eventTags := r.PostForm["event__tags[]"]
+
 		file, fileHeader, err := r.FormFile("cover__img")
 		if err != nil {
 			slog.Error("err here", err)
 			http.Error(w, "Unable to retrieve file.", http.StatusInternalServerError)
 			return
 		}
+
 		defer file.Close()
 		if err != nil {
 			http.Error(w, "Unable to read file.", http.StatusInternalServerError)
@@ -111,22 +129,23 @@ func (s *Server) CreateEventPage(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		type f struct {
-			t, d, e, f, o, p string
+		layout := "2006-01-02T15:04"
+		parsedTime, _ := time.Parse(layout, eventDate)
+
+		e := database.CreateEventParams{
+			Title:       eventTitle,
+			Description: eventDesc,
+			Date:        parsedTime,
+			Freq:        eventFrequency,
+			Organizer:   eventOrganizer,
+			Imgpath:     imgPath,
+			Userid:      user.ID,
 		}
 
-		ff := f{
-			t: eventTitle,
-			d: eventDesc,
-			e: eventDate,
-			f: eventFrequency,
-			o: eventOrganizer,
-			p: imgPath,
+		if err := s.saveEvent(context.Background(), e, eventTags); err != nil {
+			slog.Error("error saving event\n", err)
 		}
-
-		slog.Info("event information\n\n", ff)
 	}
-
 }
 
 // Organizer name is a unique value, make sure to handle error
@@ -230,4 +249,44 @@ func (s *Server) HandleDeleteOrganizer(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+}
+
+func (s *Server) saveEvent(ctx context.Context, event database.CreateEventParams, tags []string) error {
+	newEvent, err := s.db.CreateEvent(ctx, database.CreateEventParams{
+		Title:       event.Title,
+		Description: event.Description,
+		Date:        event.Date,
+		Freq:        event.Freq,
+		Organizer:   event.Organizer,
+		Imgpath:     event.Imgpath,
+		Userid:      event.Userid,
+	})
+	if err != nil {
+		return err
+	}
+
+	// Process Tags
+	for _, tag := range tags {
+		var tagID int64
+		tagResult, err := s.db.FindTagByName(ctx, tag)
+		if err == sql.ErrNoRows {
+			tagResult, err = s.db.CreateTag(ctx, tag)
+		}
+		if err != nil {
+			return err
+		}
+
+		tagID = tagResult.ID
+
+		// Link Event to Tag
+		err = s.db.LinkEventToTag(ctx, database.LinkEventToTagParams{
+			Eventid: newEvent.ID,
+			Tagid:   tagID,
+		})
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

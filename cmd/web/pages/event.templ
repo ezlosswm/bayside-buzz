@@ -1,11 +1,13 @@
 package pages
 
 import (
+	"bayside-buzz/cmd/web/components"
 	"bayside-buzz/cmd/web/layouts"
+	"bayside-buzz/internal/database"
 	"bayside-buzz/internal/domain"
 )
 
-templ Event(pageData *domain.PageData) {
+templ Event(pageData *domain.PageData, event database.GetEventWithTagsRow) {
 	@layouts.Layout(pageData) {
 		<div
 			aria-label="Event details"
@@ -19,7 +21,7 @@ templ Event(pageData *domain.PageData) {
 					<div class="relative h-64 md:h-full">
 						<img
 							aria-label="Event image"
-							src="../assets/images/hero.jpg"
+							src={ event.Imgpath }
 							alt="Event cover image"
 							class="absolute inset-0 w-full h-full object-cover"
 						/>
@@ -32,7 +34,7 @@ templ Event(pageData *domain.PageData) {
 						>
 							<div>
 								<h2 class="text-2xl sm:text-3xl font-bold text-gray-900">
-									Two for One Drinks
+									{ event.Title }
 								</h2>
 								<div class="mt-2">
 									<a
@@ -42,7 +44,7 @@ templ Event(pageData *domain.PageData) {
 										<svg xmlns="http://www.w3.org/2000/svg" class="size-6" viewBox="0 0 24 24">
 											<path fill="currentColor" d="m18.36 9l.6 3H5.04l.6-3zM20 4H4v2h16zm0 3H4l-1 5v2h1v6h10v-6h4v6h2v-6h1v-2zM6 18v-4h6v4z"></path>
 										</svg>
-										Pancho's Drink House
+										{ event.Organizer }
 									</a>
 								</div>
 							</div>
@@ -66,7 +68,7 @@ templ Event(pageData *domain.PageData) {
 									</div>
 									<div>
 										<p class="text-sm font-medium text-gray-600">Date</p>
-										<p class="mt-1 text-sm text-gray-900">March 15, 2024</p>
+										<p class="mt-1 text-sm text-gray-900">{ event.Date.Format("Jan 03, 2000") }</p>
 									</div>
 								</div>
 								<div class="flex items-center gap-x-2">
@@ -75,6 +77,7 @@ templ Event(pageData *domain.PageData) {
 											<path fill="currentColor" d="M12 2A10 10 0 0 0 2 12a10 10 0 0 0 10 10a10 10 0 0 0 10-10A10 10 0 0 0 12 2m4.2 14.2L11 13V7h1.5v5.2l4.5 2.7z"></path>
 										</svg>
 									</div>
+									// delete
 									<div>
 										<p class="text-sm font-medium text-gray-600">Time</p>
 										<p class="mt-1 text-sm text-gray-900">7:00 PM</p>
@@ -105,7 +108,7 @@ templ Event(pageData *domain.PageData) {
 									</div>
 									<div>
 										<p class="text-sm font-medium text-gray-600">Recurrence</p>
-										<p class="mt-1 text-sm text-gray-900">Annual</p>
+										<p class="mt-1 text-sm text-gray-900">{ event.Freq }</p>
 									</div>
 								</div>
 							</div>
@@ -113,31 +116,19 @@ templ Event(pageData *domain.PageData) {
 						<!-- Description -->
 						<div class="mt-8">
 							<h3 class="text-lg font-semibold text-gray-900">Description</h3>
-							<p class="mt-2 text-sm text-gray-600">
-								Join us for an amazing evening of great drinks and even better
-								company! We're offering a special two-for-one deal on all our
-								signature cocktails. Whether you're looking to unwind after work
-								or start your weekend early, this is the perfect opportunity to
-								try our extensive drink menu at an unbeatable price.
+							<p class="h-40 mt-2 text-sm text-gray-600">
+								{ event.Description }
 							</p>
 							<!-- Tags/Filters -->
 							<div class="mt-6">
 								<div class="flex flex-wrap gap-2">
-									<span
-										class="inline-flex items-center rounded-full bg-gray-100 px-3 py-1 text-sm font-medium text-gray-600"
-									>
-										Drinks
-									</span>
-									<span
-										class="inline-flex items-center rounded-full bg-gray-100 px-3 py-1 text-sm font-medium text-gray-600"
-									>
-										Happy Hour
-									</span>
-									<span
-										class="inline-flex items-center rounded-full bg-gray-100 px-3 py-1 text-sm font-medium text-gray-600"
-									>
-										Social
-									</span>
+									for _, t := range components.ToSlice(event.Tags.(string)) {
+										<span
+											class="inline-flex items-center rounded-full bg-gray-100 px-3 py-1 text-sm font-medium text-gray-600"
+										>
+											{ t }
+										</span>
+									}
 								</div>
 							</div>
 						</div>

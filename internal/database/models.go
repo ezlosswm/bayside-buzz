@@ -6,7 +6,24 @@ package database
 
 import (
 	"database/sql"
+	"time"
 )
+
+type Event struct {
+	ID          int64
+	Title       string
+	Description string
+	Date        time.Time
+	Freq        string
+	Organizer   string
+	Imgpath     string
+	Userid      int64
+}
+
+type EventTag struct {
+	Eventid int64
+	Tagid   int64
+}
 
 type Organizer struct {
 	ID            int64
@@ -14,6 +31,11 @@ type Organizer struct {
 	Description   string
 	ImgUrl        string
 	Value         sql.NullString
+}
+
+type Tag struct {
+	ID   int64
+	Name string
 }
 
 type User struct {

@@ -1,6 +1,8 @@
 package components 
 
-templ EventTable() {
+import "bayside-buzz/internal/database"
+
+templ EventTable(events []database.Event) {
 	<table class="w-full table-fixed">
 		<thead>
 			<tr>
@@ -12,13 +14,10 @@ templ EventTable() {
 			</tr>
 		</thead>
 		<tbody>
-			@Event()
+			for _, event := range events {
+				@Event(event)
+			}
 			<!--Table /-->
-			<!-- space -->
-			<!-- space -->
-			<!-- space -->
-			<!-- space -->
-			<!-- space -->
 			<!-- this is gonna be the form when clicking the edit button
      htmx -->
 			<div id="editEvent">

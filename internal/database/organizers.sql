@@ -1,8 +1,8 @@
 -- name: CreateOrganizer :exec
 INSERT INTO organizers (
     organizer_name, description, value, img_url
-) VALUES (
-  ?, ?, ?, ?
+    ) VALUES (
+    ?, ?, ?, ?
 );
 
 -- name: GetOrganizers :many 

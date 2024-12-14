@@ -4,6 +4,7 @@ import (
 	"context"
 	"log/slog"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"bayside-buzz/cmd/web/pages"
@@ -26,11 +27,11 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.PathPrefix("/assets/").Handler(fileServer)
 
 	r.HandleFunc("/", s.HomePage).Methods(http.MethodGet)
-	r.HandleFunc("/event", s.EventPage).Methods(http.MethodGet) // dynamic route
+	r.HandleFunc("/event-{id:[0-9]+}", s.EventPage)
 	r.HandleFunc("/contact", s.ContactPage).Methods(http.MethodGet)
 
 	r.HandleFunc("/login", s.LoginPage).Methods(http.MethodGet, http.MethodPost)
-    r.HandleFunc("/logout", s.HandleLogout).Methods(http.MethodPost)
+	r.HandleFunc("/logout", s.HandleLogout).Methods(http.MethodPost)
 	r.HandleFunc("/register", s.RegisterPage).Methods(http.MethodGet, http.MethodPost)
 
 	r.HandleFunc("/dashboard", s.Authenticate(s.DashboardPage))
@@ -73,20 +74,28 @@ func (s *Server) HomePage(w http.ResponseWriter, r *http.Request) {
 
 	pageData := domain.NewPageData(SITE_NAME, title, description, pageType, image, url)
 
-	ctx := context.Background()
-
 	if r.Method == "GET" {
-		organizers, _ := s.db.GetOrganizers(ctx)
+		// getting event data begin
+		e, err := s.db.GetEvents(context.Background())
+		if err != nil {
+			slog.Error("error getting event data\n", e)
+		}
 
-		pages.Home(pageData, &organizers).Render(context.Background(), w)
+		// getting event data ends
+
+		organizers, _ := s.db.GetOrganizers(context.Background())
+
+		t, _ := s.db.GetEventsWithTags(context.Background())
+		slog.Info("Event with tags", t[0])
+
+		pages.Home(pageData, t, &organizers).Render(context.Background(), w)
 	}
 }
 
 func (s *Server) EventPage(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "GET" {
 		var (
 			url   = r.Host
-			title = strings.Join([]string{"Get event name", SITE_NAME}, " - ")
+			title = strings.Join([]string{"test route", SITE_NAME}, " - ")
 		)
 		const (
 			description = "Discover Events in Corozal, Belize - Bayside Buzz"
@@ -94,11 +103,16 @@ func (s *Server) EventPage(w http.ResponseWriter, r *http.Request) {
 			image       = "" // event's image
 		)
 
+		// update OG info to match the event
 		pageData := domain.NewPageData(SITE_NAME, title, description, pageType, image, url)
-		slog.Info("Page Data: \n", pageData)
 
-		pages.Event(pageData).Render(context.Background(), w)
-	}
+		idStr := mux.Vars(r)["id"]
+		id, _ := strconv.Atoi(idStr)
+
+		t, _ := s.db.GetEventWithTags(context.Background(), int64(id))
+
+		slog.Info("Event tag info\n", t.Tags)
+		pages.Event(pageData, t).Render(context.Background(), w)
 }
 
 func (s *Server) ContactPage(w http.ResponseWriter, r *http.Request) {
