@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS events (
     id INTEGER PRIMARY KEY AUTOINCREMENT, 
     title TEXT NOT NULL, 
     description TEXT NOT NULL, 
-    date DATETIME NOT NULL, 
+    date DATE NOT NULL, 
     freq TEXT CHECK (freq IN ('once', 'daily', 'weekly', 'monthly')) NOT NULL,
     organizer TEXT NOT NULL, 
     imgPath TEXT NOT NULL, 

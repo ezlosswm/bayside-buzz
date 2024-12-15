@@ -100,4 +100,5 @@ make sqlc-generate
 - Add a way to manage paid ads
 - Ability to share an event
 - Switch to Postgres
+- Dockerize
 - Deploy

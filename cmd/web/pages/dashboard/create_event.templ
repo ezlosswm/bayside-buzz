@@ -18,12 +18,14 @@ var Filters = []Filter{
 	{Label: "Business"},
 }
 
-templ CreateEvent(pageData *domain.PageData, organizers *[]database.Organizer) {
+templ CreateEvent(pageData *domain.PageData, created bool, organizers []database.Organizer) {
 	@layouts.DashboardLayout(pageData) {
 		<div class="mt-16 sm:mt-0 w-full max-w-3xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
 			<form
 				enctype="multipart/form-data"
 				hx-post="/dashboard/create_event"
+				hx-target="#success-message"
+				hx-swap="innerHTML"
 				class="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl md:col-span-2"
 			>
 				<div class="px-4 py-6 sm:p-8">
@@ -99,7 +101,7 @@ templ CreateEvent(pageData *domain.PageData, organizers *[]database.Organizer) {
 								</label>
 								<div class="mt-2">
 									<input
-										type="datetime-local"
+										type="date"
 										name="event__date"
 										class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-600 sm:text-sm sm:leading-6"
 									/>
@@ -191,13 +193,20 @@ templ CreateEvent(pageData *domain.PageData, organizers *[]database.Organizer) {
 					</button>
 				</div>
 			</form>
+			<div hx-swap-oob="true" id="success-message" class="mb-4">
+				if created {
+					<div class="p-4 mt-4 text-sm rounded-lg bg-blue-50 text-blue-600">
+						New event created.
+					</div>
+				}
+			</div>
 		</div>
 	}
 }
 
-templ organizerSelect(organizers *[]database.Organizer) {
+templ organizerSelect(organizers []database.Organizer) {
 	<option value="">Please select</option>
-	for _, o := range *organizers {
+	for _, o := range organizers {
 		<option value={ o.OrganizerName }>{ o.OrganizerName }</option>
 	}
 }

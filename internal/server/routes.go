@@ -62,9 +62,8 @@ func (s *Server) corsMiddleware(next http.Handler) http.Handler {
 }
 
 func (s *Server) HomePage(w http.ResponseWriter, r *http.Request) {
-	var (
-		url = r.Host
-	)
+	var url = r.Host
+
 	const (
 		title       = "Bayside Buzz"
 		description = "Discover Events in Corozal, Belize - Bayside Buzz"
@@ -75,51 +74,45 @@ func (s *Server) HomePage(w http.ResponseWriter, r *http.Request) {
 	pageData := domain.NewPageData(SITE_NAME, title, description, pageType, image, url)
 
 	if r.Method == "GET" {
-		// getting event data begin
 		e, err := s.db.GetEvents(context.Background())
 		if err != nil {
 			slog.Error("error getting event data\n", e)
 		}
 
-		// getting event data ends
-
 		organizers, _ := s.db.GetOrganizers(context.Background())
 
-		t, _ := s.db.GetEventsWithTags(context.Background())
-		slog.Info("Event with tags", t[0])
+		events, _ := s.db.GetEventsWithTags(context.Background())
 
-		pages.Home(pageData, t, &organizers).Render(context.Background(), w)
+		pages.Home(pageData, events, organizers).Render(context.Background(), w)
 	}
 }
 
 func (s *Server) EventPage(w http.ResponseWriter, r *http.Request) {
-		var (
-			url   = r.Host
-			title = strings.Join([]string{"test route", SITE_NAME}, " - ")
-		)
-		const (
-			description = "Discover Events in Corozal, Belize - Bayside Buzz"
-			pageType    = "article"
-			image       = "" // event's image
-		)
+	var url = r.Host
 
-		// update OG info to match the event
-		pageData := domain.NewPageData(SITE_NAME, title, description, pageType, image, url)
+	const (
+		description = "Discover Events in Corozal, Belize - Bayside Buzz"
+		pageType    = "article"
+		image       = "" // event's image
+	)
 
-		idStr := mux.Vars(r)["id"]
-		id, _ := strconv.Atoi(idStr)
+	idStr := mux.Vars(r)["id"]
+	id, _ := strconv.Atoi(idStr)
 
-		t, _ := s.db.GetEventWithTags(context.Background(), int64(id))
+	events, _ := s.db.GetEventWithTags(context.Background(), int64(id))
 
-		slog.Info("Event tag info\n", t.Tags)
-		pages.Event(pageData, t).Render(context.Background(), w)
+	// update OG info to match the event
+	title := strings.Join([]string{SITE_NAME, events.Title}, " - ")
+	pageData := domain.NewPageData(SITE_NAME, title, description, pageType, image, url)
+
+	pages.Event(pageData, events).Render(context.Background(), w)
 }
 
 func (s *Server) ContactPage(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		var (
 			url   = r.Host
-			title = strings.Join([]string{"Contact Us", SITE_NAME}, " - ")
+			title = strings.Join([]string{SITE_NAME, "Contact Us"}, " - ")
 		)
 		const (
 			description = "Have questions, need assistance or want to advertise your business? Reach out to the Bayside Breeze team through our contact form or find our contact details here."
@@ -128,7 +121,6 @@ func (s *Server) ContactPage(w http.ResponseWriter, r *http.Request) {
 		)
 
 		pageData := domain.NewPageData(SITE_NAME, title, description, pageType, image, url)
-		slog.Info("Page Data: \n", pageData)
 
 		pages.Contact(pageData).Render(context.Background(), w)
 	}

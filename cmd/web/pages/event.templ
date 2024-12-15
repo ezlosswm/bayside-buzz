@@ -5,6 +5,7 @@ import (
 	"bayside-buzz/cmd/web/layouts"
 	"bayside-buzz/internal/database"
 	"bayside-buzz/internal/domain"
+	"strings"
 )
 
 templ Event(pageData *domain.PageData, event database.GetEventWithTagsRow) {
@@ -68,34 +69,34 @@ templ Event(pageData *domain.PageData, event database.GetEventWithTagsRow) {
 									</div>
 									<div>
 										<p class="text-sm font-medium text-gray-600">Date</p>
-										<p class="mt-1 text-sm text-gray-900">{ event.Date.Format("Jan 03, 2000") }</p>
+										<p class="mt-1 text-sm text-gray-900">{ event.Date.Format("Jan 02, 2006") }</p>
 									</div>
 								</div>
-								<div class="flex items-center gap-x-2">
-									<div class="rounded-lg bg-gray-100 p-2">
-										<svg xmlns="http://www.w3.org/2000/svg" class="size-6 text-gray-600" viewBox="0 0 24 24">
-											<path fill="currentColor" d="M12 2A10 10 0 0 0 2 12a10 10 0 0 0 10 10a10 10 0 0 0 10-10A10 10 0 0 0 12 2m4.2 14.2L11 13V7h1.5v5.2l4.5 2.7z"></path>
-										</svg>
-									</div>
-									// delete
-									<div>
-										<p class="text-sm font-medium text-gray-600">Time</p>
-										<p class="mt-1 text-sm text-gray-900">7:00 PM</p>
-									</div>
-								</div>
-								<div class="flex items-center gap-x-2">
-									<div class="rounded-lg bg-gray-100 p-2">
-										<svg xmlns="http://www.w3.org/2000/svg" class="size-6 text-gray-600" viewBox="0 0 24 24">
-											<path fill="currentColor" d="M12 11.5A2.5 2.5 0 0 1 9.5 9A2.5 2.5 0 0 1 12 6.5A2.5 2.5 0 0 1 14.5 9a2.5 2.5 0 0 1-2.5 2.5M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7"></path>
-										</svg>
-									</div>
-									<div>
-										<p class="text-sm font-medium text-gray-600">Location</p>
-										<p class="mt-1 text-sm text-gray-900">
-											123 Main St, Corozal Town
-										</p>
-									</div>
-								</div>
+								// <div class="flex items-center gap-x-2">
+								// 	<div class="rounded-lg bg-gray-100 p-2">
+								// 		<svg xmlns="http://www.w3.org/2000/svg" class="size-6 text-gray-600" viewBox="0 0 24 24">
+								// 			<path fill="currentColor" d="M12 2A10 10 0 0 0 2 12a10 10 0 0 0 10 10a10 10 0 0 0 10-10A10 10 0 0 0 12 2m4.2 14.2L11 13V7h1.5v5.2l4.5 2.7z"></path>
+								// 		</svg>
+								// 	</div>
+								// 	// delete
+								// 	<div>
+								// 		<p class="text-sm font-medium text-gray-600">Time</p>
+								// 		<p class="mt-1 text-sm text-gray-900">7:00 PM</p>
+								// 	</div>
+								// </div>
+								// <div class="flex items-center gap-x-2">
+								// 	<div class="rounded-lg bg-gray-100 p-2">
+								// 		<svg xmlns="http://www.w3.org/2000/svg" class="size-6 text-gray-600" viewBox="0 0 24 24">
+								// 			<path fill="currentColor" d="M12 11.5A2.5 2.5 0 0 1 9.5 9A2.5 2.5 0 0 1 12 6.5A2.5 2.5 0 0 1 14.5 9a2.5 2.5 0 0 1-2.5 2.5M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7"></path>
+								// 		</svg>
+								// 	</div>
+								// 	<div>
+								// 		<p class="text-sm font-medium text-gray-600">Location</p>
+								// 		<p class="mt-1 text-sm text-gray-900">
+								// 			123 Main St, Corozal Town
+								// 		</p>
+								// 	</div>
+								// </div>
 								<div class="flex items-center gap-x-2">
 									<div class="rounded-lg bg-gray-100 p-2">
 										<svg
@@ -108,7 +109,7 @@ templ Event(pageData *domain.PageData, event database.GetEventWithTagsRow) {
 									</div>
 									<div>
 										<p class="text-sm font-medium text-gray-600">Recurrence</p>
-										<p class="mt-1 text-sm text-gray-900">{ event.Freq }</p>
+										<p class="mt-1 text-sm text-gray-900">{ strings.ToTitle(event.Freq) }</p>
 									</div>
 								</div>
 							</div>

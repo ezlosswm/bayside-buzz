@@ -5,6 +5,9 @@ module.exports = {
     ],
     theme: {
         extend: {
+            backgroundImage: {
+                'hero': "url('/assets/images/corozal-sign.jpg')",
+            },
             boxShadow: {
                 'md-x': '4px 0 6px -1px rgba(0, 0, 0, 0.05), -4px 0 6px -1px rgba(0, 0, 0, 0.05)',
             },

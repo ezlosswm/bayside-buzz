@@ -36,6 +36,8 @@ WHERE
 GROUP BY 
     e.id, e.title, e.description, e.date, e.freq, e.organizer, e.imgPath, e.userId;
 
+-- name: CountEvents :one
+SELECT COUNT(*) FROM events;
 
 -- name: GetEventsWithTags :many
 SELECT

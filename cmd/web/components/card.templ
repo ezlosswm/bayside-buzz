@@ -14,7 +14,7 @@ templ Card(event database.GetEventsWithTagsRow) {
 					{ event.Organizer }
 				</p>
 			</h3>
-			<h3 class="text-black/60">{ event.Date.Format("Jan-01-2001") }</h3>
+			<h3 class="text-black/60">{ event.Date.Format("Jan 02, 2006") }</h3>
 		</div>
 		<img
 			class="object-cover h-64 w-full"
@@ -27,8 +27,6 @@ templ Card(event database.GetEventsWithTagsRow) {
 			</h2>
 			<div class="h-40">
 				<p class="leading-5 text-black/80">
-					{ event.Description }
-					{ event.Description }
 					{ event.Description }
 				</p>
 			</div>

@@ -3,40 +3,39 @@ package components
 import "bayside-buzz/internal/domain"
 
 templ Results(results *domain.Results) {
-	<!-- results -->
-	<div class="w-full max-w-3xl mt-16 mx-auto sm:px-6 lg:px-8 py-8">
+	<div class="w-full max-w-3xl mt-16 mb-8 mx-auto sm:px-6 lg:px-8 py-4">
 		<div class="grid gap-8">
 			<!-- Stats Overview -->
-			<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-				<div class="bg-white overflow-hidden shadow rounded-lg">
-					<div class="p-5">
-						<div class="flex items-center">
-							<div class="flex-shrink-0 bg-gray-500/10 rounded-md p-3">
-								<svg
-									class="size-6 text-gray-600"
-									fill="none"
-									stroke="currentColor"
-									viewBox="0 0 24 24"
-								>
-									<path
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										stroke-width="2"
-										d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
-									></path>
-								</svg>
-							</div>
-							<div class="ml-5 w-0 flex-1">
-								<dl>
-									<dt class="text-sm font-medium text-gray-500 truncate">
-										Total Members
-									</dt>
-									<dd class="text-lg font-semibold text-gray-900">12.5k</dd>
-								</dl>
-							</div>
-						</div>
-					</div>
-				</div>
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+				// <div class="bg-white overflow-hidden shadow rounded-lg">
+				// 	<div class="p-5">
+				// 		<div class="flex items-center">
+				// 			<div class="flex-shrink-0 bg-gray-500/10 rounded-md p-3">
+				// 				<svg
+				// 					class="size-6 text-gray-600"
+				// 					fill="none"
+				// 					stroke="currentColor"
+				// 					viewBox="0 0 24 24"
+				// 				>
+				// 					<path
+				// 						stroke-linecap="round"
+				// 						stroke-linejoin="round"
+				// 						stroke-width="2"
+				// 						d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+				// 					></path>
+				// </svg>
+				// </div>
+				// <div class="ml-5 w-0 flex-1">
+				// <dl>
+				// <dt class="text-sm font-medium text-gray-500 truncate">
+				// Total Members
+				// </dt>
+				// <dd class="text-lg font-semibold text-gray-900">12.5k</dd>
+				// </dl>
+				// </div>
+				// </div>
+				// </div>
+				// </div>
 				<div class="bg-white overflow-hidden shadow rounded-lg">
 					<div class="p-5">
 						<div class="flex items-center">
@@ -60,7 +59,7 @@ templ Results(results *domain.Results) {
 									<dt class="text-sm font-medium text-gray-500 truncate">
 										Active Events
 									</dt>
-									<dd class="text-lg font-semibold text-gray-900">48</dd>
+									<dd class="text-lg font-semibold text-gray-900">{ results.TotalEvents }</dd>
 								</dl>
 							</div>
 						</div>

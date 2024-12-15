@@ -26,12 +26,12 @@ func (s *Server) HandleLogout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Add("HX-Redirect", "/login")
+	w.Header().Set("HX-Redirect", "/login")
 }
 
 func (s *Server) LoginPage(w http.ResponseWriter, r *http.Request) {
 	var (
-		title = strings.Join([]string{"Login", SITE_NAME}, " - ")
+		title = strings.Join([]string{SITE_NAME, "Login"}, " - ")
 		url   = r.Host
 	)
 
@@ -70,26 +70,22 @@ func (s *Server) LoginPage(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			return
 		}
-		
+
 		session.Values["userId"] = user.ID
-		slog.Info("Setting session userId", "userId", user.ID)
 
 		if err := session.Save(r, w); err != nil {
 			slog.Error("Failed to save session", "error", err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		slog.Info("Session saved successfully", "userId", user.ID)
 
-		// just testing redirects
 		w.Header().Add("HX-Redirect", "/dashboard")
 	}
 }
 
 func (s *Server) authenticateUser(email, password string) (*database.User, error) {
 	// Authenticate user
-	ctx := context.Background()
-	user, err := s.db.GetUser(ctx, email)
+	user, err := s.db.GetUser(context.Background(), email)
 	if err != nil {
 		return nil, err
 	}
@@ -103,7 +99,7 @@ func (s *Server) authenticateUser(email, password string) (*database.User, error
 
 func (s *Server) RegisterPage(w http.ResponseWriter, r *http.Request) {
 	var (
-		title = strings.Join([]string{"Register", SITE_NAME}, " - ")
+		title = strings.Join([]string{SITE_NAME, "Register"}, " - ")
 		url   = r.Host
 	)
 	const (
@@ -115,9 +111,7 @@ func (s *Server) RegisterPage(w http.ResponseWriter, r *http.Request) {
 	pageData := domain.NewPageData(SITE_NAME, title, description, pageType, image, url)
 
 	if r.Method == "GET" {
-		ctx := context.Background()
-
-		count, err := s.db.CountUsers(ctx)
+		count, err := s.db.CountUsers(context.Background())
 		if err != nil {
 			slog.Error("error counting user: \n", err)
 			return
@@ -155,8 +149,7 @@ func (s *Server) RegisterPage(w http.ResponseWriter, r *http.Request) {
 			PasswordHash: string(passwordHash),
 		}
 
-		ctx := context.Background()
-		if err = s.db.CreateUser(ctx, userParams); err != nil {
+		if err = s.db.CreateUser(context.Background(), userParams); err != nil {
 			slog.Error("error creating user: \n", err)
 			return
 		}

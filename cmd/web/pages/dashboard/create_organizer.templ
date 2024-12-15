@@ -7,12 +7,14 @@ import (
 	"fmt"
 )
 
-templ CreateOrganizer(pageData *domain.PageData, organizers *[]database.Organizer) {
+templ CreateOrganizer(pageData *domain.PageData, created bool, organizers []database.Organizer) {
 	@layouts.DashboardLayout(pageData) {
 		<div class="mt-16 sm:mt-0 max-w-3xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
 			<form
 				enctype="multipart/form-data"
 				hx-post="/dashboard/create_organizer"
+				hx-target="#success-message"
+				hx-swap="innerHTML"
 				class="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl md:col-span-2"
 			>
 				<div class="px-4 py-6 sm:p-8">
@@ -114,8 +116,15 @@ templ CreateOrganizer(pageData *domain.PageData, organizers *[]database.Organize
 					</button>
 				</div>
 			</form>
+			<div id="success-message" class="mb-4">
+				if created {
+					<div class="p-4 mt-4 text-sm rounded-lg bg-blue-50 text-blue-600">
+						New organizer created.
+					</div>
+				}
+			</div>
 		</div>
-		<table id="organizer-table" class="border border-red-400 text-center w-full max-w-7xl mx-auto table-fixed">
+		<table id="organizer-table" class="text-center w-full max-w-7xl mx-auto table-fixed">
 			<thead>
 				<tr>
 					<th class="border-r p-1">Image </th>
@@ -124,15 +133,15 @@ templ CreateOrganizer(pageData *domain.PageData, organizers *[]database.Organize
 				</tr>
 			</thead>
 			<tbody>
-				for _, organizer := range *organizers {
-					@OrganizerTable(&organizer)
+				for _, organizer := range organizers {
+					@OrganizerTable(organizer)
 				}
 			</tbody>
 		</table>
 	}
 }
 
-templ OrganizerTable(organizer *database.Organizer) {
+templ OrganizerTable(organizer database.Organizer) {
 	<tr hx-swap="delete" id={ "event-" + fmt.Sprintf("%v", organizer.ID) }>
 		<td class="p-1">
 			<img class="mx-auto shadow size-12 rounded-full" src={ organizer.ImgUrl } alt={ organizer.OrganizerName + " Cover Image" }/>
