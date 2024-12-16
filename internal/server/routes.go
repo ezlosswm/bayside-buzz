@@ -2,8 +2,8 @@ package server
 
 import (
 	"context"
-	"net/http"
 	"log/slog"
+	"net/http"
 	"strconv"
 	"strings"
 
@@ -11,8 +11,7 @@ import (
 	"bayside-buzz/internal/domain"
 
 	"github.com/gorilla/mux"
-	    "github.com/jackc/pgx/v5/pgconn"
-
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 const SITE_NAME = "Bayside Buzz"
@@ -83,12 +82,12 @@ func (s *Server) HomePage(w http.ResponseWriter, r *http.Request) {
 
 		organizers, err := s.db.GetOrganizers(context.Background())
 		if err != nil {
-            slog.Error("Error getting organizers", "error", err)
-        }
+			slog.Error("Error getting organizers", "error", err)
+		}
 
 		events, err := s.db.GetEventsWithTags(context.Background())
 		if err != nil {
-            slog.Error("Error getting events", "error", err)
+			slog.Error("Error getting events", "error", err)
 
 			if pgErr, ok := err.(*pgconn.PgError); ok {
 				slog.Error("PostgreSQL error details",
@@ -97,7 +96,7 @@ func (s *Server) HomePage(w http.ResponseWriter, r *http.Request) {
 					"detail", pgErr.Detail,
 					"hint", pgErr.Hint)
 			}
-        }
+		}
 		pages.Home(pageData, events, organizers).Render(context.Background(), w)
 	}
 }
