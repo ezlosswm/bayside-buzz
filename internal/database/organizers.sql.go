@@ -7,7 +7,6 @@ package database
 
 import (
 	"context"
-	"database/sql"
 )
 
 const countOrganizers = `-- name: CountOrganizers :one
@@ -15,7 +14,7 @@ SELECT COUNT(*) FROM organizers
 `
 
 func (q *Queries) CountOrganizers(ctx context.Context) (int64, error) {
-	row := q.db.QueryRowContext(ctx, countOrganizers)
+	row := q.db.QueryRow(ctx, countOrganizers)
 	var count int64
 	err := row.Scan(&count)
 	return count, err
@@ -23,45 +22,39 @@ func (q *Queries) CountOrganizers(ctx context.Context) (int64, error) {
 
 const createOrganizer = `-- name: CreateOrganizer :exec
 INSERT INTO organizers (
-    organizer_name, description, value, img_url
+    organizer_name, description, img_url
     ) VALUES (
-    ?, ?, ?, ?
+    $1, $2, $3
 )
 `
 
 type CreateOrganizerParams struct {
 	OrganizerName string
 	Description   string
-	Value         sql.NullString
 	ImgUrl        string
 }
 
 func (q *Queries) CreateOrganizer(ctx context.Context, arg CreateOrganizerParams) error {
-	_, err := q.db.ExecContext(ctx, createOrganizer,
-		arg.OrganizerName,
-		arg.Description,
-		arg.Value,
-		arg.ImgUrl,
-	)
+	_, err := q.db.Exec(ctx, createOrganizer, arg.OrganizerName, arg.Description, arg.ImgUrl)
 	return err
 }
 
 const deleteOrganizer = `-- name: DeleteOrganizer :exec
 DELETE FROM organizers
-WHERE id = ?
+WHERE id = $1
 `
 
-func (q *Queries) DeleteOrganizer(ctx context.Context, id int64) error {
-	_, err := q.db.ExecContext(ctx, deleteOrganizer, id)
+func (q *Queries) DeleteOrganizer(ctx context.Context, id int32) error {
+	_, err := q.db.Exec(ctx, deleteOrganizer, id)
 	return err
 }
 
 const getOrganizers = `-- name: GetOrganizers :many
-SELECT id, organizer_name, description, img_url, value FROM organizers
+SELECT id, organizer_name, description, img_url FROM organizers
 `
 
 func (q *Queries) GetOrganizers(ctx context.Context) ([]Organizer, error) {
-	rows, err := q.db.QueryContext(ctx, getOrganizers)
+	rows, err := q.db.Query(ctx, getOrganizers)
 	if err != nil {
 		return nil, err
 	}
@@ -74,14 +67,10 @@ func (q *Queries) GetOrganizers(ctx context.Context) ([]Organizer, error) {
 			&i.OrganizerName,
 			&i.Description,
 			&i.ImgUrl,
-			&i.Value,
 		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err

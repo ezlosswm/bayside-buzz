@@ -11,28 +11,26 @@ import (
 
 const createTag = `-- name: CreateTag :one
 INSERT INTO tags (name)
-VALUES (?)
+VALUES ($1)
 ON CONFLICT (name) DO NOTHING
 RETURNING id, name
 `
 
 func (q *Queries) CreateTag(ctx context.Context, name string) (Tag, error) {
-	row := q.db.QueryRowContext(ctx, createTag, name)
+	row := q.db.QueryRow(ctx, createTag, name)
 	var i Tag
 	err := row.Scan(&i.ID, &i.Name)
 	return i, err
 }
 
 const findTagByName = `-- name: FindTagByName :one
-;
-
 SELECT id, name
 FROM tags
-WHERE name = ?
+WHERE name = $1
 `
 
 func (q *Queries) FindTagByName(ctx context.Context, name string) (Tag, error) {
-	row := q.db.QueryRowContext(ctx, findTagByName, name)
+	row := q.db.QueryRow(ctx, findTagByName, name)
 	var i Tag
 	err := row.Scan(&i.ID, &i.Name)
 	return i, err
@@ -42,11 +40,11 @@ const getTagsForEvent = `-- name: GetTagsForEvent :many
 SELECT tags.id, tags.name
 FROM tags
 JOIN event_tags ON tags.id = event_tags.tagId
-WHERE event_tags.eventId = ?
+WHERE event_tags.eventId = $1
 `
 
-func (q *Queries) GetTagsForEvent(ctx context.Context, eventid int64) ([]Tag, error) {
-	rows, err := q.db.QueryContext(ctx, getTagsForEvent, eventid)
+func (q *Queries) GetTagsForEvent(ctx context.Context, eventid int32) ([]Tag, error) {
+	rows, err := q.db.Query(ctx, getTagsForEvent, eventid)
 	if err != nil {
 		return nil, err
 	}
@@ -59,9 +57,6 @@ func (q *Queries) GetTagsForEvent(ctx context.Context, eventid int64) ([]Tag, er
 		}
 		items = append(items, i)
 	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
@@ -70,16 +65,16 @@ func (q *Queries) GetTagsForEvent(ctx context.Context, eventid int64) ([]Tag, er
 
 const linkEventToTag = `-- name: LinkEventToTag :exec
 INSERT INTO event_tags (eventId, tagId)
-VALUES (?, ?)
+VALUES ($1, $2)
 ON CONFLICT DO NOTHING
 `
 
 type LinkEventToTagParams struct {
-	Eventid int64
-	Tagid   int64
+	Eventid int32
+	Tagid   int32
 }
 
 func (q *Queries) LinkEventToTag(ctx context.Context, arg LinkEventToTagParams) error {
-	_, err := q.db.ExecContext(ctx, linkEventToTag, arg.Eventid, arg.Tagid)
+	_, err := q.db.Exec(ctx, linkEventToTag, arg.Eventid, arg.Tagid)
 	return err
 }

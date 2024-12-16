@@ -1,8 +1,8 @@
 -- name: CreateOrganizer :exec
 INSERT INTO organizers (
-    organizer_name, description, value, img_url
+    organizer_name, description, img_url
     ) VALUES (
-    ?, ?, ?, ?
+    $1, $2, $3
 );
 
 -- name: GetOrganizers :many 
@@ -13,4 +13,4 @@ SELECT COUNT(*) FROM organizers;
 
 -- name: DeleteOrganizer :exec
 DELETE FROM organizers
-WHERE id = ?;
+WHERE id = $1;

@@ -7,7 +7,8 @@ package database
 
 import (
 	"context"
-	"time"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const countEvents = `-- name: CountEvents :one
@@ -15,7 +16,7 @@ SELECT COUNT(*) FROM events
 `
 
 func (q *Queries) CountEvents(ctx context.Context) (int64, error) {
-	row := q.db.QueryRowContext(ctx, countEvents)
+	row := q.db.QueryRow(ctx, countEvents)
 	var count int64
 	err := row.Scan(&count)
 	return count, err
@@ -24,23 +25,23 @@ func (q *Queries) CountEvents(ctx context.Context) (int64, error) {
 const createEvent = `-- name: CreateEvent :one
 INSERT INTO events (
     title, description, date, freq, organizer, imgPath, userId
-    ) VALUES (
-    ?, ?, ?, ?, ?, ?, ?
+) VALUES (
+    $1, $2, $3, $4, $5, $6, $7
 ) RETURNING id, title, description, date, freq, organizer, imgpath, userid
 `
 
 type CreateEventParams struct {
 	Title       string
 	Description string
-	Date        time.Time
+	Date        pgtype.Date
 	Freq        string
 	Organizer   string
 	Imgpath     string
-	Userid      int64
+	Userid      int32
 }
 
 func (q *Queries) CreateEvent(ctx context.Context, arg CreateEventParams) (Event, error) {
-	row := q.db.QueryRowContext(ctx, createEvent,
+	row := q.db.QueryRow(ctx, createEvent,
 		arg.Title,
 		arg.Description,
 		arg.Date,
@@ -64,11 +65,11 @@ func (q *Queries) CreateEvent(ctx context.Context, arg CreateEventParams) (Event
 }
 
 const getEvent = `-- name: GetEvent :one
-SELECT id, title, description, date, freq, organizer, imgpath, userid FROM events WHERE id = ?
+SELECT id, title, description, date, freq, organizer, imgpath, userid FROM events WHERE id = $1
 `
 
-func (q *Queries) GetEvent(ctx context.Context, id int64) (Event, error) {
-	row := q.db.QueryRowContext(ctx, getEvent, id)
+func (q *Queries) GetEvent(ctx context.Context, id int32) (Event, error) {
+	row := q.db.QueryRow(ctx, getEvent, id)
 	var i Event
 	err := row.Scan(
 		&i.ID,
@@ -84,7 +85,7 @@ func (q *Queries) GetEvent(ctx context.Context, id int64) (Event, error) {
 }
 
 const getEventWithTags = `-- name: GetEventWithTags :one
-SELECT 
+SELECT
     e.id AS eventId,
     e.title,
     e.description,
@@ -93,33 +94,33 @@ SELECT
     e.organizer,
     e.imgPath,
     e.userId,
-    COALESCE(GROUP_CONCAT(t.name, ','), '') AS tags
-FROM 
+    COALESCE(string_agg(t.name, ','), '') AS tags
+FROM
     events e
-LEFT JOIN 
+LEFT JOIN
     event_tags et ON e.id = et.eventId
-LEFT JOIN 
+LEFT JOIN
     tags t ON et.tagId = t.id
-WHERE 
-    e.id = ?
-GROUP BY 
+WHERE
+    e.id = $1
+GROUP BY
     e.id, e.title, e.description, e.date, e.freq, e.organizer, e.imgPath, e.userId
 `
 
 type GetEventWithTagsRow struct {
-	Eventid     int64
+	Eventid     int32
 	Title       string
 	Description string
-	Date        time.Time
+	Date        pgtype.Date
 	Freq        string
 	Organizer   string
 	Imgpath     string
-	Userid      int64
+	Userid      int32
 	Tags        interface{}
 }
 
-func (q *Queries) GetEventWithTags(ctx context.Context, id int64) (GetEventWithTagsRow, error) {
-	row := q.db.QueryRowContext(ctx, getEventWithTags, id)
+func (q *Queries) GetEventWithTags(ctx context.Context, id int32) (GetEventWithTagsRow, error) {
+	row := q.db.QueryRow(ctx, getEventWithTags, id)
 	var i GetEventWithTagsRow
 	err := row.Scan(
 		&i.Eventid,
@@ -140,7 +141,7 @@ SELECT id, title, description, date, freq, organizer, imgpath, userid FROM event
 `
 
 func (q *Queries) GetEvents(ctx context.Context) ([]Event, error) {
-	rows, err := q.db.QueryContext(ctx, getEvents)
+	rows, err := q.db.Query(ctx, getEvents)
 	if err != nil {
 		return nil, err
 	}
@@ -161,9 +162,6 @@ func (q *Queries) GetEvents(ctx context.Context) ([]Event, error) {
 			return nil, err
 		}
 		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -172,11 +170,11 @@ func (q *Queries) GetEvents(ctx context.Context) ([]Event, error) {
 }
 
 const getEventsByOrganizer = `-- name: GetEventsByOrganizer :many
-SELECT id, title, description, date, freq, organizer, imgpath, userid FROM events WHERE organizer = ?
+SELECT id, title, description, date, freq, organizer, imgpath, userid FROM events WHERE organizer = $1
 `
 
 func (q *Queries) GetEventsByOrganizer(ctx context.Context, organizer string) ([]Event, error) {
-	rows, err := q.db.QueryContext(ctx, getEventsByOrganizer, organizer)
+	rows, err := q.db.Query(ctx, getEventsByOrganizer, organizer)
 	if err != nil {
 		return nil, err
 	}
@@ -197,9 +195,6 @@ func (q *Queries) GetEventsByOrganizer(ctx context.Context, organizer string) ([
 			return nil, err
 		}
 		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -217,7 +212,7 @@ SELECT
     e.organizer,
     e.imgPath,
     e.userId,
-    COALESCE(GROUP_CONCAT(t.name, ','), '') AS tags
+    COALESCE(string_agg(t.name, ','), '') AS tags
 FROM
     events e
 LEFT JOIN
@@ -225,23 +220,23 @@ LEFT JOIN
 LEFT JOIN
     tags t ON et.tagId = t.id
 GROUP BY
-    e.id
+    e.id, e.title, e.description, e.date, e.freq, e.organizer, e.imgPath, e.userId
 `
 
 type GetEventsWithTagsRow struct {
-	Eventid     int64
+	Eventid     int32
 	Title       string
 	Description string
-	Date        time.Time
+	Date        pgtype.Date
 	Freq        string
 	Organizer   string
 	Imgpath     string
-	Userid      int64
+	Userid      int32
 	Tags        interface{}
 }
 
 func (q *Queries) GetEventsWithTags(ctx context.Context) ([]GetEventsWithTagsRow, error) {
-	rows, err := q.db.QueryContext(ctx, getEventsWithTags)
+	rows, err := q.db.Query(ctx, getEventsWithTags)
 	if err != nil {
 		return nil, err
 	}
@@ -263,9 +258,6 @@ func (q *Queries) GetEventsWithTags(ctx context.Context) ([]GetEventsWithTagsRow
 			return nil, err
 		}
 		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err

@@ -1,21 +1,21 @@
 -- name: CreateEvent :one
 INSERT INTO events (
     title, description, date, freq, organizer, imgPath, userId
-    ) VALUES (
-    ?, ?, ?, ?, ?, ?, ?
+) VALUES (
+    $1, $2, $3, $4, $5, $6, $7
 ) RETURNING *;
 
 -- name: GetEvents :many
 SELECT * FROM events;
 
 -- name: GetEvent :one
-SELECT * FROM events WHERE id = ?;
+SELECT * FROM events WHERE id = $1;
 
 -- name: GetEventsByOrganizer :many
-SELECT * FROM events WHERE organizer = ?;
+SELECT * FROM events WHERE organizer = $1;
 
 -- name: GetEventWithTags :one
-SELECT 
+SELECT
     e.id AS eventId,
     e.title,
     e.description,
@@ -24,16 +24,16 @@ SELECT
     e.organizer,
     e.imgPath,
     e.userId,
-    COALESCE(GROUP_CONCAT(t.name, ','), '') AS tags
-FROM 
+    COALESCE(string_agg(t.name, ','), '') AS tags
+FROM
     events e
-LEFT JOIN 
+LEFT JOIN
     event_tags et ON e.id = et.eventId
-LEFT JOIN 
+LEFT JOIN
     tags t ON et.tagId = t.id
-WHERE 
-    e.id = ?
-GROUP BY 
+WHERE
+    e.id = $1
+GROUP BY
     e.id, e.title, e.description, e.date, e.freq, e.organizer, e.imgPath, e.userId;
 
 -- name: CountEvents :one
@@ -49,7 +49,7 @@ SELECT
     e.organizer,
     e.imgPath,
     e.userId,
-    COALESCE(GROUP_CONCAT(t.name, ','), '') AS tags
+    COALESCE(string_agg(t.name, ','), '') AS tags
 FROM
     events e
 LEFT JOIN
@@ -57,4 +57,4 @@ LEFT JOIN
 LEFT JOIN
     tags t ON et.tagId = t.id
 GROUP BY
-    e.id;
+    e.id, e.title, e.description, e.date, e.freq, e.organizer, e.imgPath, e.userId;

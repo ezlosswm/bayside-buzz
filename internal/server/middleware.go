@@ -28,13 +28,13 @@ func (s *Server) Authenticate(next http.HandlerFunc) http.HandlerFunc {
 				return
 			}
 
-			// Convert userId to int64
-			var userIdInt64 int64
+			// Convert userId to int32
+			var userIdInt32 int32
 			switch v := userId.(type) {
 			case int:
-				userIdInt64 = int64(v)
-			case int64:
-				userIdInt64 = v
+				userIdInt32 = int32(v)
+			case int32:
+				userIdInt32 = v
 			default:
 				slog.Error("Invalid userId type in session", "type", v)
 				redirect(w, r)
@@ -42,7 +42,7 @@ func (s *Server) Authenticate(next http.HandlerFunc) http.HandlerFunc {
 			}
 
 			u := func() *database.User {
-				user, err := s.db.FindUser(context.Background(), userIdInt64)
+				user, err := s.db.FindUser(context.Background(), userIdInt32)
 				if err != nil {
 					slog.Error("Error finding user in DB", err)
 					redirect(w, r)

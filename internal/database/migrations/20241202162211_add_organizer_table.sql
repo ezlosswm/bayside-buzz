@@ -1,7 +1,7 @@
 -- +goose Up
 -- +goose StatementBegin
 CREATE TABLE IF NOT EXISTS organizers (
-    id INTEGER PRIMARY KEY AUTOINCREMENT, 
+    id SERIAL PRIMARY KEY,
     organizer_name TEXT NOT NULL UNIQUE,
     description TEXT NOT NULL,
     img_url TEXT NOT NULL
@@ -12,3 +12,4 @@ CREATE TABLE IF NOT EXISTS organizers (
 -- +goose StatementBegin
 DROP TABLE IF EXISTS organizers;
 -- +goose StatementEnd
+

@@ -2,8 +2,8 @@ package server
 
 import (
 	"context"
-	"log/slog"
 	"net/http"
+	"log/slog"
 	"strconv"
 	"strings"
 
@@ -11,6 +11,8 @@ import (
 	"bayside-buzz/internal/domain"
 
 	"github.com/gorilla/mux"
+	    "github.com/jackc/pgx/v5/pgconn"
+
 )
 
 const SITE_NAME = "Bayside Buzz"
@@ -74,15 +76,28 @@ func (s *Server) HomePage(w http.ResponseWriter, r *http.Request) {
 	pageData := domain.NewPageData(SITE_NAME, title, description, pageType, image, url)
 
 	if r.Method == "GET" {
-		e, err := s.db.GetEvents(context.Background())
+		// e, err := s.db.GetEvents(context.Background())
+		// if err != nil {
+		// 	slog.Error("error getting event data\n", e)
+		// }
+
+		organizers, err := s.db.GetOrganizers(context.Background())
 		if err != nil {
-			slog.Error("error getting event data\n", e)
-		}
+            slog.Error("Error getting organizers", "error", err)
+        }
 
-		organizers, _ := s.db.GetOrganizers(context.Background())
+		events, err := s.db.GetEventsWithTags(context.Background())
+		if err != nil {
+            slog.Error("Error getting events", "error", err)
 
-		events, _ := s.db.GetEventsWithTags(context.Background())
-
+			if pgErr, ok := err.(*pgconn.PgError); ok {
+				slog.Error("PostgreSQL error details",
+					"code", pgErr.Code,
+					"message", pgErr.Message,
+					"detail", pgErr.Detail,
+					"hint", pgErr.Hint)
+			}
+        }
 		pages.Home(pageData, events, organizers).Render(context.Background(), w)
 	}
 }
@@ -99,7 +114,7 @@ func (s *Server) EventPage(w http.ResponseWriter, r *http.Request) {
 	idStr := mux.Vars(r)["id"]
 	id, _ := strconv.Atoi(idStr)
 
-	events, _ := s.db.GetEventWithTags(context.Background(), int64(id))
+	events, _ := s.db.GetEventWithTags(context.Background(), int32(id))
 
 	// update OG info to match the event
 	title := strings.Join([]string{SITE_NAME, events.Title}, " - ")

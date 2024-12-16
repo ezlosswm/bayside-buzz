@@ -6,7 +6,7 @@ import (
 	"bayside-buzz/internal/domain"
 	"bayside-buzz/internal/lib"
 	"context"
-	"database/sql"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"strconv"
@@ -14,6 +14,9 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 // Dashboard
@@ -108,10 +111,14 @@ func (s *Server) CreateEventPage(w http.ResponseWriter, r *http.Request) {
 		layout := "2006-01-02"
 		parsedTime, _ := time.Parse(layout, eventDate)
 
+        var pgDate pgtype.Date
+        pgDate.Time = parsedTime
+		pgDate.Valid = true
+
 		e := database.CreateEventParams{
 			Title:       eventTitle,
 			Description: eventDesc,
-			Date:        parsedTime,
+			Date:        pgDate,
 			Freq:        eventFrequency,
 			Organizer:   eventOrganizer,
 			Imgpath:     imgPath,
@@ -176,12 +183,9 @@ func (s *Server) CreateOrganizerPage(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		value := lib.OrganizerToValue(orgName)
-
 		newOrganizer := database.CreateOrganizerParams{
 			OrganizerName: orgName,
 			Description:   orgDesc,
-			Value:         value,
 			ImgUrl:        imgPath,
 		}
 
@@ -207,7 +211,7 @@ func (s *Server) HandleDeleteOrganizer(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if err := s.db.DeleteOrganizer(ctx, int64(id)); err != nil {
+		if err := s.db.DeleteOrganizer(ctx, int32(id)); err != nil {
 			http.Error(w, "error delete organizer.", http.StatusInternalServerError)
 			return
 		}
@@ -215,24 +219,44 @@ func (s *Server) HandleDeleteOrganizer(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) saveEvent(ctx context.Context, event database.CreateEventParams, tags []string) error {
+	var postgresDate time.Time
+	fmt.Printf("%v\ntype%T", event.Date, event.Date)
+	if event.Date.Valid {
+		postgresDate = event.Date.Time
+	} else {
+		return fmt.Errorf("invalid date")
+	}
+
 	newEvent, err := s.db.CreateEvent(ctx, database.CreateEventParams{
 		Title:       event.Title,
 		Description: event.Description,
-		Date:        event.Date,
+		Date:        pgtype.Date{Time: postgresDate, Valid: true},
 		Freq:        event.Freq,
 		Organizer:   event.Organizer,
 		Imgpath:     event.Imgpath,
 		Userid:      event.Userid,
 	})
 	if err != nil {
+		  slog.Error("Failed to create event", 
+            "error", err, 
+            "error_type", fmt.Sprintf("%T", err))
+
+		if pgErr, ok := err.(*pgconn.PgError); ok {
+		slog.Error("PostgreSQL error details",
+                "code", pgErr.Code,
+                "message", pgErr.Message,
+                "detail", pgErr.Detail,
+                "hint", pgErr.Hint)
+		}
+
 		return err
 	}
 
 	// Process Tags
 	for _, tag := range tags {
-		var tagID int64
+		var tagID int32
 		tagResult, err := s.db.FindTagByName(ctx, tag)
-		if err == sql.ErrNoRows {
+		if err == pgx.ErrNoRows {
 			tagResult, err = s.db.CreateTag(ctx, tag)
 		}
 		if err != nil {

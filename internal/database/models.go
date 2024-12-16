@@ -5,41 +5,39 @@
 package database
 
 import (
-	"database/sql"
-	"time"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Event struct {
-	ID          int64
+	ID          int32
 	Title       string
 	Description string
-	Date        time.Time
+	Date        pgtype.Date
 	Freq        string
 	Organizer   string
 	Imgpath     string
-	Userid      int64
+	Userid      int32
 }
 
 type EventTag struct {
-	Eventid int64
-	Tagid   int64
+	Eventid int32
+	Tagid   int32
 }
 
 type Organizer struct {
-	ID            int64
+	ID            int32
 	OrganizerName string
 	Description   string
 	ImgUrl        string
-	Value         sql.NullString
 }
 
 type Tag struct {
-	ID   int64
+	ID   int32
 	Name string
 }
 
 type User struct {
-	ID           int64
+	ID           int32
 	Name         string
 	Email        string
 	PasswordHash string

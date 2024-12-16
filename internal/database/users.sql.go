@@ -14,7 +14,7 @@ SELECT COUNT(*) FROM users
 `
 
 func (q *Queries) CountUsers(ctx context.Context) (int64, error) {
-	row := q.db.QueryRowContext(ctx, countUsers)
+	row := q.db.QueryRow(ctx, countUsers)
 	var count int64
 	err := row.Scan(&count)
 	return count, err
@@ -24,7 +24,7 @@ const createUser = `-- name: CreateUser :exec
 INSERT INTO users (
     name, email, password_hash
     ) VALUES (
-    ?, ?, ?
+    $1, $2, $3
 )
 `
 
@@ -35,16 +35,16 @@ type CreateUserParams struct {
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) error {
-	_, err := q.db.ExecContext(ctx, createUser, arg.Name, arg.Email, arg.PasswordHash)
+	_, err := q.db.Exec(ctx, createUser, arg.Name, arg.Email, arg.PasswordHash)
 	return err
 }
 
 const findUser = `-- name: FindUser :one
-SELECT id, name, email, password_hash FROM users WHERE id = ?
+SELECT id, name, email, password_hash FROM users WHERE id = $1
 `
 
-func (q *Queries) FindUser(ctx context.Context, id int64) (User, error) {
-	row := q.db.QueryRowContext(ctx, findUser, id)
+func (q *Queries) FindUser(ctx context.Context, id int32) (User, error) {
+	row := q.db.QueryRow(ctx, findUser, id)
 	var i User
 	err := row.Scan(
 		&i.ID,
@@ -56,11 +56,11 @@ func (q *Queries) FindUser(ctx context.Context, id int64) (User, error) {
 }
 
 const getUser = `-- name: GetUser :one
-SELECT id, name, email, password_hash FROM users WHERE email = ?
+SELECT id, name, email, password_hash FROM users WHERE email = $1
 `
 
 func (q *Queries) GetUser(ctx context.Context, email string) (User, error) {
-	row := q.db.QueryRowContext(ctx, getUser, email)
+	row := q.db.QueryRow(ctx, getUser, email)
 	var i User
 	err := row.Scan(
 		&i.ID,
@@ -76,7 +76,7 @@ SELECT id, name, email, password_hash FROM users
 `
 
 func (q *Queries) GetUsers(ctx context.Context) ([]User, error) {
-	rows, err := q.db.QueryContext(ctx, getUsers)
+	rows, err := q.db.Query(ctx, getUsers)
 	if err != nil {
 		return nil, err
 	}
@@ -93,9 +93,6 @@ func (q *Queries) GetUsers(ctx context.Context) ([]User, error) {
 			return nil, err
 		}
 		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err

@@ -1,7 +1,7 @@
 -- +goose Up
 -- +goose StatementBegin
 CREATE TABLE IF NOT EXISTS tags (
-    id INTEGER PRIMARY KEY AUTOINCREMENT, 
+    id SERIAL PRIMARY KEY,
     name TEXT UNIQUE NOT NULL
 );
 -- +goose StatementEnd
@@ -10,3 +10,4 @@ CREATE TABLE IF NOT EXISTS tags (
 -- +goose StatementBegin
 DROP TABLE IF EXISTS tags;
 -- +goose StatementEnd
+

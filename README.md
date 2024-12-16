@@ -92,13 +92,13 @@ make sqlc-generate
 - Templ
 - Tailwind
 - HTMX
-- SQLite3
+- Postgres
 
 ## To Do
 
-- Fix UI/UX for dashboard
-- Add a way to manage paid ads
-- Ability to share an event
-- Switch to Postgres
-- Dockerize
-- Deploy
+- [ ] Fix UI/UX for dashboard
+- [ ] Add a way to manage paid ads
+- [ ] Ability to share an event
+- [x] Switch to Postgres
+- [x] Dockerize
+- [ ] Deploy

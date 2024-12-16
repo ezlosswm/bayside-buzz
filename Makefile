@@ -62,12 +62,12 @@ watch:
 
 # Migrations 
 # apply migrations
-migrate-up: 
-	goose -dir ./internal/database/migrations sqlite3 ./test.db up
+# migrate-up: 
+	# goose -dir ./internal/database/migrations sqlite3 ./test.db up
 
 # rollback 
-migrate-rollback: 
-	goose -dir ./internal/database/migrations sqlite3 ./test.db down
+# migrate-rollback: 
+	# goose -dir ./internal/database/migrations sqlite3 ./test.db down
 
 # SQLC 
 sqlc-generate: 
