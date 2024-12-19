@@ -23,15 +23,15 @@ type Server struct {
 func NewServer() *http.Server {
 	port, _ := strconv.Atoi(os.Getenv("PORT"))
 
-    session := sessions.NewCookieStore([]byte("WuW0S1yxsd"))
-    session.Options.HttpOnly = true
-    session.Options.SameSite = http.SameSiteLaxMode
+	session := sessions.NewCookieStore([]byte("WuW0S1yxsd"))
+	session.Options.HttpOnly = true
+	session.Options.SameSite = http.SameSiteLaxMode
 
 	NewServer := &Server{
 		port: port,
 
-		db: database.NewSQCL(),
-        store: session,
+		db:    database.NewSQCL(),
+		store: session,
 	}
 
 	// Declare Server config

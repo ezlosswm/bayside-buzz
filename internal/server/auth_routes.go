@@ -38,7 +38,7 @@ func (s *Server) LoginPage(w http.ResponseWriter, r *http.Request) {
 	const (
 		description = "Access your Bayside Breeze account to manage the events happening in Corozal Town, Belize."
 		pageType    = "website"
-		image       = "" // get an image
+		image       = "/assets/images/corozal-sign.jpg"
 	)
 
 	pageData := domain.NewPageData(SITE_NAME, title, description, pageType, image, url)
@@ -105,7 +105,7 @@ func (s *Server) RegisterPage(w http.ResponseWriter, r *http.Request) {
 	const (
 		description = "Register to Bayside Breeze"
 		pageType    = "website"
-		image       = "" // get an image
+		image       = "/assets/images/corozal-sign.jpg"
 	)
 
 	pageData := domain.NewPageData(SITE_NAME, title, description, pageType, image, url)

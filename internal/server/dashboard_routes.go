@@ -15,8 +15,8 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 // Dashboard
@@ -29,25 +29,23 @@ func (s *Server) DashboardPage(w http.ResponseWriter, r *http.Request) {
 	const (
 		description = "Manage events, view organizer details, and monitor your community activity with the Bayside Breeze dashboard."
 		pageType    = "website"
-		image       = "" // get image
+		image       = "/assets/images/corozal-sign.jpg"
 	)
 
 	pageData := domain.NewPageData(SITE_NAME, title, description, pageType, image, url)
 
-	if r.Method == "GET" {
-		e, err := s.db.GetEvents(context.Background())
-		if err != nil {
-			slog.Error("error getting event data\n", e)
-			return
-		}
-
-		totalOrganizers, _ := s.db.CountOrganizers(context.Background())
-		totalEvents, _ := s.db.CountEvents(context.Background())
-
-		results := domain.NewResults(totalOrganizers, totalEvents)
-
-		dashboard.Dashboard(pageData, e, results).Render(context.Background(), w)
+	e, err := s.db.GetEvents(context.Background())
+	if err != nil {
+		slog.Error("error getting event data\n", e)
+		return
 	}
+
+	totalOrganizers, _ := s.db.CountOrganizers(context.Background())
+	totalEvents, _ := s.db.CountEvents(context.Background())
+
+	results := domain.NewResults(totalOrganizers, totalEvents)
+
+	dashboard.Dashboard(pageData, e, results).Render(context.Background(), w)
 }
 
 func (s *Server) CreateEventPage(w http.ResponseWriter, r *http.Request) {
@@ -60,7 +58,7 @@ func (s *Server) CreateEventPage(w http.ResponseWriter, r *http.Request) {
 	const (
 		description = "Host your next big event with Bayside Breeze. Fill in the details and share your event with the community today!"
 		pageType    = "website"
-		image       = "" // get image
+		image       = "/assets/images/corozal-sign.jpg"
 	)
 
 	pageData := domain.NewPageData(SITE_NAME, title, description, pageType, image, url)
@@ -71,7 +69,7 @@ func (s *Server) CreateEventPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method == "POST" {
-		r.Body = http.MaxBytesReader(w, r.Body, 10<<20)
+		r.Body = http.MaxBytesReader(w, r.Body, 5<<20)
 		if err := r.ParseMultipartForm(5 << 20); err != nil {
 			slog.Error("error parsing registration form\n", err)
 			http.Error(w, err.Error(), http.StatusBadRequest)
@@ -91,7 +89,6 @@ func (s *Server) CreateEventPage(w http.ResponseWriter, r *http.Request) {
 
 		file, fileHeader, err := r.FormFile("cover__img")
 		if err != nil {
-			slog.Error("err here", err)
 			http.Error(w, "Unable to retrieve file.", http.StatusInternalServerError)
 			return
 		}
@@ -111,8 +108,8 @@ func (s *Server) CreateEventPage(w http.ResponseWriter, r *http.Request) {
 		layout := "2006-01-02"
 		parsedTime, _ := time.Parse(layout, eventDate)
 
-        var pgDate pgtype.Date
-        pgDate.Time = parsedTime
+		var pgDate pgtype.Date
+		pgDate.Time = parsedTime
 		pgDate.Valid = true
 
 		e := database.CreateEventParams{
@@ -134,6 +131,24 @@ func (s *Server) CreateEventPage(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (s *Server) HandleDeleteEvent(w http.ResponseWriter, r *http.Request) {	
+	if r.Method == "DELETE" {
+		vars := mux.Vars(r)
+		idParam := vars["id"]
+
+		id, err := strconv.Atoi(idParam)
+		if err != nil {
+			slog.Error("error converting id")
+			return
+		}
+
+		if err := s.db.DeleteEvent(context.Background(), int32(id)); err != nil {
+			http.Error(w, "error delete organizer.", http.StatusInternalServerError)
+			return
+		}
+	}
+}
+
 // Organizer name is a unique value, make sure to handle error
 func (s *Server) CreateOrganizerPage(w http.ResponseWriter, r *http.Request) {
 	var (
@@ -143,21 +158,24 @@ func (s *Server) CreateOrganizerPage(w http.ResponseWriter, r *http.Request) {
 	const (
 		description = "Expand your network by adding a new organizer. Manage events efficiently and connect with the community through Bayside Breeze."
 		pageType    = "website"
-		image       = "" // get image
+		image       = "/assets/images/corozal-sign.jpg"
 	)
 
 	pageData := domain.NewPageData(SITE_NAME, title, description, pageType, image, url)
 
 	organizers, _ := s.db.GetOrganizers(context.Background())
 	if r.Method == "GET" {
-		dashboard.CreateOrganizer(pageData, false, organizers).Render(context.Background(), w)
+		dashboard.CreateOrganizer(pageData, false, "", organizers).Render(context.Background(), w)
 	}
 
 	if r.Method == "POST" {
-		r.Body = http.MaxBytesReader(w, r.Body, 10<<20)
+		r.Body = http.MaxBytesReader(w, r.Body, 5<<20)
 		if err := r.ParseMultipartForm(5 << 20); err != nil {
+			errors := map[string]string{"error": err.Error()}
+			dashboard.CreateOrganizer(pageData, false, errors["error"], organizers).Render(context.Background(), w)
+
 			slog.Error("error parsing registration form\n", err)
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			// http.Error(w, err.Error(), http.StatusBadRequest)
 			w.Header().Set("HX-Refresh", "true")
 			return
 		}
@@ -168,18 +186,18 @@ func (s *Server) CreateOrganizerPage(w http.ResponseWriter, r *http.Request) {
 		file, fileHeader, err := r.FormFile("org__img")
 		if err != nil {
 			slog.Error("err here", err)
-			http.Error(w, "Unable to retrieve file.", http.StatusInternalServerError)
+			http.Error(w, "unable to retrieve file.", http.StatusInternalServerError)
 			return
 		}
 		defer file.Close()
 		if err != nil {
-			http.Error(w, "Unable to read file.", http.StatusInternalServerError)
+			http.Error(w, "unable to read file.", http.StatusInternalServerError)
 			return
 		}
 
 		imgPath, err := lib.FileUpload("organizers", file, *fileHeader)
 		if err != nil {
-			http.Error(w, "Unable to create file.", http.StatusInternalServerError)
+			http.Error(w, "unable to create file.", http.StatusInternalServerError)
 			return
 		}
 
@@ -194,13 +212,12 @@ func (s *Server) CreateOrganizerPage(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		w.Header().Set("HX-Refresh", "true")
-		dashboard.CreateOrganizer(pageData, true, organizers).Render(context.Background(), w)
+		// w.Header().Set("HX-Refresh", "true")
+		dashboard.CreateOrganizer(pageData, true, "", organizers).Render(context.Background(), w)
 	}
 }
 
 func (s *Server) HandleDeleteOrganizer(w http.ResponseWriter, r *http.Request) {
-	ctx := context.Background()
 	if r.Method == "DELETE" {
 		vars := mux.Vars(r)
 		idParam := vars["id"]
@@ -211,7 +228,7 @@ func (s *Server) HandleDeleteOrganizer(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if err := s.db.DeleteOrganizer(ctx, int32(id)); err != nil {
+		if err := s.db.DeleteOrganizer(context.Background(), int32(id)); err != nil {
 			http.Error(w, "error delete organizer.", http.StatusInternalServerError)
 			return
 		}
@@ -237,16 +254,16 @@ func (s *Server) saveEvent(ctx context.Context, event database.CreateEventParams
 		Userid:      event.Userid,
 	})
 	if err != nil {
-		  slog.Error("Failed to create event", 
-            "error", err, 
-            "error_type", fmt.Sprintf("%T", err))
+		slog.Error("Failed to create event",
+			"error", err,
+			"error_type", fmt.Sprintf("%T", err))
 
 		if pgErr, ok := err.(*pgconn.PgError); ok {
-		slog.Error("PostgreSQL error details",
-                "code", pgErr.Code,
-                "message", pgErr.Message,
-                "detail", pgErr.Detail,
-                "hint", pgErr.Hint)
+			slog.Error("PostgreSQL error details",
+				"code", pgErr.Code,
+				"message", pgErr.Message,
+				"detail", pgErr.Detail,
+				"hint", pgErr.Hint)
 		}
 
 		return err

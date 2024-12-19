@@ -58,3 +58,6 @@ LEFT JOIN
     tags t ON et.tagId = t.id
 GROUP BY
     e.id, e.title, e.description, e.date, e.freq, e.organizer, e.imgPath, e.userId;
+
+-- name: DeleteEvent :exec
+DELETE FROM events WHERE id = $1;

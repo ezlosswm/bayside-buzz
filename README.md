@@ -98,7 +98,7 @@ make sqlc-generate
 
 - [ ] Fix UI/UX for dashboard
 - [ ] Add a way to manage paid ads
-- [ ] Ability to share an event
+- [x] Ability to share an event
 - [x] Switch to Postgres
-- [x] Dockerize
+- [ ] Dockerize
 - [ ] Deploy

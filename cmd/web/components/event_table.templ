@@ -17,9 +17,6 @@ templ EventTable(events []database.Event) {
 			for _, event := range events {
 				@Event(event)
 			}
-			<!--Table /-->
-			<!-- this is gonna be the form when clicking the edit button
-     htmx -->
 			<div id="editEvent">
 				// @EditEvent()
 			</div>

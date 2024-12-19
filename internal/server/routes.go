@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"strconv"
@@ -37,6 +38,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 	r.HandleFunc("/dashboard", s.Authenticate(s.DashboardPage))
 	r.HandleFunc("/dashboard/create_event", s.Authenticate(s.CreateEventPage))
+	r.HandleFunc("/dashboard/create_event/{id:[0-9]+}", s.Authenticate(s.HandleDeleteEvent)).Methods(http.MethodDelete)
 	r.HandleFunc("/dashboard/create_organizer", s.Authenticate(s.CreateOrganizerPage)).Methods(http.MethodGet, http.MethodPost)
 	r.HandleFunc("/dashboard/create_organizer/{id:[0-9]+}", s.Authenticate(s.HandleDeleteOrganizer)).Methods(http.MethodDelete)
 
@@ -69,17 +71,12 @@ func (s *Server) HomePage(w http.ResponseWriter, r *http.Request) {
 		title       = "Bayside Buzz"
 		description = "Discover Events in Corozal, Belize - Bayside Buzz"
 		pageType    = "website"
-		image       = "" // get an image
+		image       = "/assets/images/corozal-sign.jpg"
 	)
 
 	pageData := domain.NewPageData(SITE_NAME, title, description, pageType, image, url)
 
 	if r.Method == "GET" {
-		// e, err := s.db.GetEvents(context.Background())
-		// if err != nil {
-		// 	slog.Error("error getting event data\n", e)
-		// }
-
 		organizers, err := s.db.GetOrganizers(context.Background())
 		if err != nil {
 			slog.Error("Error getting organizers", "error", err)
@@ -102,18 +99,20 @@ func (s *Server) HomePage(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) EventPage(w http.ResponseWriter, r *http.Request) {
-	var url = r.Host
-
-	const (
-		description = "Discover Events in Corozal, Belize - Bayside Buzz"
-		pageType    = "article"
-		image       = "" // event's image
-	)
-
 	idStr := mux.Vars(r)["id"]
 	id, _ := strconv.Atoi(idStr)
 
 	events, _ := s.db.GetEventWithTags(context.Background(), int32(id))
+
+	var (
+		url   = r.Host
+		image = fmt.Sprintf("%v", events.Imgpath)
+	)
+
+	const (
+		description = "Discover Events in Corozal, Belize - Bayside Buzz"
+		pageType    = "article"
+	)
 
 	// update OG info to match the event
 	title := strings.Join([]string{SITE_NAME, events.Title}, " - ")
@@ -123,19 +122,17 @@ func (s *Server) EventPage(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) ContactPage(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "GET" {
-		var (
-			url   = r.Host
-			title = strings.Join([]string{SITE_NAME, "Contact Us"}, " - ")
-		)
-		const (
-			description = "Have questions, need assistance or want to advertise your business? Reach out to the Bayside Breeze team through our contact form or find our contact details here."
-			pageType    = "website"
-			image       = "" // get image
-		)
+	var (
+		url   = r.Host
+		title = strings.Join([]string{SITE_NAME, "Contact Us"}, " - ")
+	)
+	const (
+		description = "Have questions, need assistance or want to advertise your business? Reach out to the Bayside Breeze team through our contact form or find our contact details here."
+		pageType    = "website"
+		image       = "/assets/images/corozal-sign.jpg"
+	)
 
-		pageData := domain.NewPageData(SITE_NAME, title, description, pageType, image, url)
+	pageData := domain.NewPageData(SITE_NAME, title, description, pageType, image, url)
 
-		pages.Contact(pageData).Render(context.Background(), w)
-	}
+	pages.Contact(pageData).Render(context.Background(), w)
 }

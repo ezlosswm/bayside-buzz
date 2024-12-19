@@ -11,3 +11,4 @@ func OrganizerToValue(organizer string) sql.NullString {
 
 	return sql.NullString{String: v, Valid: v != ""}
 }
+

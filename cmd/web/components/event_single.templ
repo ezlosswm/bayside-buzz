@@ -1,9 +1,12 @@
 package components
 
-import "bayside-buzz/internal/database"
+import (
+	"bayside-buzz/internal/database"
+	"fmt"
+)
 
 templ Event(event database.Event) {
-	<tr class="text-sm hover:text-black/65">
+	<tr id={ fmt.Sprintf("event-%v", event.ID) } class="text-sm hover:text-black/65">
 		<td class="p-1">
 			<img class="mx-auto size-12 rounded-full" src={ event.Imgpath } alt="Bubble"/>
 		</td>
@@ -12,7 +15,7 @@ templ Event(event database.Event) {
 			<p>{ event.Description }</p>
 		</td>
 		<td class="text-center p-1">{ event.Organizer }</td>
-		<td class="text-center p-1">{ event.Date.Time.Format("Jan-02-2006") }</td>
+		<td class="text-center p-1">{ event.Date.Time.Format("Jan 02, 2006") }</td>
 		<td class="p-1 hidden text-center sm:block">
 			<span
 				class="inline-flex overflow-hidden rounded-md border bg-white shadow-sm"
@@ -39,6 +42,9 @@ templ Event(event database.Event) {
 				<button
 					class="inline-block p-3 text-gray-700 hover:bg-gray-50 focus:relative"
 					title="Delete Product"
+					hx-target={ fmt.Sprintf("#event-%v", event.ID) }
+					hx-swap="delete"
+					hx-delete={ fmt.Sprintf("/dashboard/create_event/%v", event.ID) }
 				>
 					<svg
 						xmlns="http://www.w3.org/2000/svg"

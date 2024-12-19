@@ -16,4 +16,20 @@ document.addEventListener("DOMContentLoaded", () => {
   if (year) {
     year.innerText = new Date().getFullYear().toString();
   }
+
+  // shareable link
+  const shareBtn = document.getElementById("share-button");
+
+  async function copyText(e) {
+    e.preventDefault();
+
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      alert("Link copied to clipboard!");
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  shareBtn?.addEventListener("click", copyText);
 });

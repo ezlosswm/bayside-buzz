@@ -3,42 +3,22 @@ package components
 import "bayside-buzz/internal/database"
 
 templ Card(event database.GetEventsWithTagsRow) {
-	<div
-		class="text-black text base rounded-lg border border-gray-200 grid h-[40rem]"
-	>
-		<div
-			class="text-sm px-4 py-2 border-2 border-white rounded-lg bg-neutral-100/60 w-full flex justify-between items-center"
-		>
-			<h3 class="font-bold text-black/60">
-				<p class="hover:underline hover:text-sky-600">
-					{ event.Organizer }
-				</p>
-			</h3>
-			<h3 class="text-black/60">{ event.Date.Time.Format("Jan 02, 2006") }</h3>
-		</div>
+	<article class="relative overflow-hidden rounded-lg shadow transition hover:shadow-lg">
 		<img
-			class="object-cover h-64 w-full"
+			alt=""
 			src={ event.Imgpath }
-			alt="Custom card"
+			class="absolute inset-0 h-full w-full object-cover"
 		/>
-		<div class="p-4 space-y-5 text-center sm:text-start">
-			<h2 class="hover:text-sky-500 text-xl font-bold leading-9">
-				<a class="hover:underline" href={ templ.URL(NewURL(event.Eventid)) }>{ event.Title }</a>
-			</h2>
-			<div class="h-40">
-				<p class="leading-5 text-black/80">
+		<div class="h-full relative bg-gradient-to-t from-gray-900/50 to-gray-900/25 pt-32 sm:pt-48 lg:pt-64">
+			<div class="p-4 sm:p-6">
+				<time datetime="2022-10-10" class="block text-xs text-white/90">{ event.Date.Time.Format("Jan 02, 2006") }</time>
+				<a href={ templ.URL(NewURL(event.Eventid)) }>
+					<h3 class="mt-0.5 text-lg text-white">{ event.Title }</h3>
+				</a>
+				<p class="mt-2 line-clamp-3 text-sm/relaxed text-white/95">
 					{ event.Description }
 				</p>
 			</div>
-			<div class="flex flex-wrap gap-2">
-				for _, t := range ToSlice(event.Tags.(string)) {
-					<span
-						class="inline-flex items-center rounded-full bg-gray-100 px-3 py-1 text-xs sm:text-sm font-medium text-gray-600"
-					>
-						{ t }
-					</span>
-				}
-			</div>
 		</div>
-	</div>
+	</article>
 }
