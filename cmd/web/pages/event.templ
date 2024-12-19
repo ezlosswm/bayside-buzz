@@ -5,7 +5,7 @@ import (
 	"bayside-buzz/cmd/web/layouts"
 	"bayside-buzz/internal/database"
 	"bayside-buzz/internal/domain"
-	"strings"
+	"bayside-buzz/internal/lib"
 )
 
 templ Event(pageData *domain.PageData, event database.GetEventWithTagsRow) {
@@ -110,7 +110,7 @@ templ Event(pageData *domain.PageData, event database.GetEventWithTagsRow) {
 									</div>
 									<div>
 										<p class="text-sm font-medium text-gray-600">Recurrence</p>
-										<p class="mt-1 text-sm text-gray-900">{ strings.ToTitle(event.Freq) }</p>
+										<p class="mt-1 text-sm text-gray-900">{ lib.ToTitle(event.Freq) }</p>
 									</div>
 								</div>
 							</div>

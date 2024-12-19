@@ -32,7 +32,9 @@ main
 # Images 
 *.PNG
 *.jpg
+*.jpeg
 *.png
+*.webp
 
 # OS X generated file
 .DS_Store

@@ -12,3 +12,6 @@ func OrganizerToValue(organizer string) sql.NullString {
 	return sql.NullString{String: v, Valid: v != ""}
 }
 
+func ToTitle(s string) string {
+	return strings.ToUpper(string(s[0])) + s[1:]
+}
