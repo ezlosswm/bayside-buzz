@@ -11,7 +11,7 @@ cmds = [
 [phases.build]
 cmds = [
     "templ generate",
-    "go build -o out ./cmd/main.go",
+    "go build -o out ./cmd/api/main.go",
     "npx tailwindcss -o ./static/css/tailwind.css"       # Build the Tailwind CSS file
 ]
 
