@@ -31,7 +31,6 @@ main
 
 # Images 
 *.PNG
-*.jpg
 *.jpeg
 *.png
 *.webp
@@ -40,7 +39,6 @@ main
 .DS_Store
 
 # Tailwind CSS
-cmd/web/assets/css/output.css
 tailwindcss
 
 # Node 
