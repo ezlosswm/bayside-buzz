@@ -12,7 +12,7 @@ cmds = [
 cmds = [
     "templ generate",
     "go build -o out ./cmd/api/main.go",
-    "npx tailwindcss -o ./static/css/tailwind.css"       # Build the Tailwind CSS file
+    "npx tailwindcss -i cmd/web/assets/css/input.css -o cmd/web/assets/css/output.css"
 ]
 
 [start]
