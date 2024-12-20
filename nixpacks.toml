@@ -1,0 +1,11 @@
+[phases.setup]
+nixPkgs = ["go", "templ"]
+
+[phases.install]
+cmds = ["go mod tidy"]
+
+[phases.build]
+cmds = ["templ generate", "go build -o out ./cmd/api/main.go"]
+
+[start]
+cmd = "./out"
