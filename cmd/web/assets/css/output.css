@@ -806,6 +806,10 @@ select {
   isolation: isolate;
 }
 
+.-z-10 {
+  z-index: -10;
+}
+
 .-z-50 {
   z-index: -50;
 }
@@ -1481,16 +1485,16 @@ select {
   padding-top: 5rem;
 }
 
-.pt-24 {
-  padding-top: 6rem;
-}
-
 .pt-32 {
   padding-top: 8rem;
 }
 
 .pt-6 {
   padding-top: 1.5rem;
+}
+
+.pt-8 {
+  padding-top: 2rem;
 }
 
 .text-center {
@@ -1640,6 +1644,14 @@ select {
   color: rgb(255 255 255 / 0.95);
 }
 
+.opacity-10 {
+  opacity: 0.1;
+}
+
+.opacity-\[0\.05\] {
+  opacity: 0.05;
+}
+
 .shadow {
   --tw-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
   --tw-shadow-colored: 0 1px 3px 0 var(--tw-shadow-color), 0 1px 2px -1px var(--tw-shadow-color);
@@ -1675,6 +1687,16 @@ select {
 
 .ring-gray-900\/5 {
   --tw-ring-color: rgb(17 24 39 / 0.05);
+}
+
+.blur {
+  --tw-blur: blur(8px);
+  filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.blur-lg {
+  --tw-blur: blur(16px);
+  filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
 }
 
 .filter {
@@ -1951,10 +1973,6 @@ select {
 
   .sm\:pb-32 {
     padding-bottom: 8rem;
-  }
-
-  .sm\:pt-32 {
-    padding-top: 8rem;
   }
 
   .sm\:pt-48 {

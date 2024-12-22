@@ -4,8 +4,16 @@ templ Navbar() {
 	<header
 		role="banner"
 		id="header"
-		class="h-24 flex items-center shadow-sm fixed inset-x-0 top-0 z-20 px-8 py-4 bg-white"
+		class="h-24 flex items-center shadow-sm sticky inset-x-0 top-0 z-20 px-8 py-4 bg-white"
 	>
+		<img
+			id="background"
+			src="/assets/images/subtle-prism.svg"
+			loading="lazy"
+			alt="background svg"
+			class="fixed top-0 left-0 opacity-[0.05] w-full h-full -z-10 blur-lg"
+			fetchpriority="high"
+		/>
 		// Main Navigation
 		<div class="w-full max-w-7xl mx-auto">
 			<div class="flex items-center justify-between">
