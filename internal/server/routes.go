@@ -29,7 +29,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.PathPrefix("/assets/").Handler(fileServer)
 
 	r.HandleFunc("/", s.HomePage).Methods(http.MethodGet)
-	r.HandleFunc("/event-{id:[0-9]+}", s.EventPage)
+	r.HandleFunc("/event/{id:[0-9]+}", s.EventPage)
 	r.HandleFunc("/contact", s.ContactPage).Methods(http.MethodGet)
 
 	r.HandleFunc("/login", s.LoginPage).Methods(http.MethodGet, http.MethodPost)

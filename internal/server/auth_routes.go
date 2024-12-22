@@ -119,9 +119,9 @@ func (s *Server) RegisterPage(w http.ResponseWriter, r *http.Request) {
 
 		if count == 1 {
 			pages.Register(pageData, true).Render(context.Background(), w)
+		} else {
+			pages.Register(pageData, false).Render(context.Background(), w)
 		}
-
-		pages.Register(pageData, false).Render(context.Background(), w)
 	}
 
 	if r.Method == "POST" {

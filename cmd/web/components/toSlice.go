@@ -11,5 +11,5 @@ func ToSlice(s string) []string {
 
 func NewURL(eventId int32) string {
    id := int(eventId) 
-   return strings.Join([]string{"/event", strconv.Itoa(id)}, "-")
+   return strings.Join([]string{"/event/", strconv.Itoa(id)}, "")
 }

@@ -165,14 +165,13 @@ func (s *Server) CreateOrganizerPage(w http.ResponseWriter, r *http.Request) {
 
 	organizers, _ := s.db.GetOrganizers(context.Background())
 	if r.Method == "GET" {
-		dashboard.CreateOrganizer(pageData, false, "", organizers).Render(context.Background(), w)
+		dashboard.CreateOrganizer(pageData, false, organizers).Render(context.Background(), w)
 	}
 
 	if r.Method == "POST" {
 		r.Body = http.MaxBytesReader(w, r.Body, 5<<20)
 		if err := r.ParseMultipartForm(5 << 20); err != nil {
-			errors := map[string]string{"error": err.Error()}
-			dashboard.CreateOrganizer(pageData, false, errors["error"], organizers).Render(context.Background(), w)
+			dashboard.CreateOrganizer(pageData, false, organizers).Render(context.Background(), w)
 
 			slog.Error("error parsing registration form\n", err)
 			// http.Error(w, err.Error(), http.StatusBadRequest)
@@ -212,8 +211,8 @@ func (s *Server) CreateOrganizerPage(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// w.Header().Set("HX-Refresh", "true")
-		dashboard.CreateOrganizer(pageData, true, "", organizers).Render(context.Background(), w)
+		w.Header().Set("HX-Refresh", "true")
+		// dashboard.CreateOrganizer(pageData, true, "", organizers).Render(context.Background(), w)
 	}
 }
 
