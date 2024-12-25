@@ -36,7 +36,7 @@ func (s *Server) DashboardPage(w http.ResponseWriter, r *http.Request) {
 
 	e, err := s.db.GetEvents(context.Background())
 	if err != nil {
-		slog.Error("error getting event data\n", e)
+		slog.Error("error getting event data\n", err.Error())
 		return
 	}
 
@@ -71,7 +71,6 @@ func (s *Server) CreateEventPage(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		r.Body = http.MaxBytesReader(w, r.Body, 5<<20)
 		if err := r.ParseMultipartForm(5 << 20); err != nil {
-			slog.Error("error parsing registration form\n", err)
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			w.Header().Set("HX-Refresh", "true")
 			return
@@ -92,14 +91,9 @@ func (s *Server) CreateEventPage(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Unable to retrieve file.", http.StatusInternalServerError)
 			return
 		}
-
 		defer file.Close()
-		if err != nil {
-			http.Error(w, "Unable to read file.", http.StatusInternalServerError)
-			return
-		}
 
-		imgPath, err := lib.FileUpload("events", file, *fileHeader)
+		imgPath, err := lib.FileUpload(file, *fileHeader)
 		if err != nil {
 			http.Error(w, "Unable to create file.", http.StatusInternalServerError)
 			return
@@ -131,7 +125,7 @@ func (s *Server) CreateEventPage(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (s *Server) HandleDeleteEvent(w http.ResponseWriter, r *http.Request) {	
+func (s *Server) HandleDeleteEvent(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "DELETE" {
 		vars := mux.Vars(r)
 		idParam := vars["id"]
@@ -188,7 +182,7 @@ func (s *Server) CreateOrganizerPage(w http.ResponseWriter, r *http.Request) {
 		}
 		defer file.Close()
 
-		imgPath, err := lib.FileUpload("organizers", file, *fileHeader)
+		imgPath, err := lib.FileUpload(file, *fileHeader)
 		if err != nil {
 			http.Error(w, "unable to create file.", http.StatusInternalServerError)
 			return
