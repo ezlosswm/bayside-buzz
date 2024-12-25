@@ -17,4 +17,7 @@ cmds = [
 
 [start]
 cmd = "./out"
+env = {
+    "IMAGES_PATH": "/images"
+}
 
