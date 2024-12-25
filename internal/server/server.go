@@ -13,6 +13,10 @@ import (
 	"bayside-buzz/internal/database"
 )
 
+var (
+	cookie = os.Getenv("COOKIE")
+)
+
 type Server struct {
 	port int
 
@@ -23,7 +27,7 @@ type Server struct {
 func NewServer() *http.Server {
 	port, _ := strconv.Atoi(os.Getenv("PORT"))
 
-	session := sessions.NewCookieStore([]byte("WuW0S1yxsd"))
+	session := sessions.NewCookieStore([]byte(cookie))
 	session.Options.HttpOnly = true
 	session.Options.SameSite = http.SameSiteLaxMode
 

@@ -1,9 +1,11 @@
 package dashboard
 
 import (
+	"bayside-buzz/cmd/web/components"
 	"bayside-buzz/cmd/web/layouts"
 	"bayside-buzz/internal/database"
 	"bayside-buzz/internal/domain"
+	"strings"
 )
 
 type Filter struct {
@@ -21,6 +23,13 @@ var Filters = []Filter{
 templ CreateEvent(pageData *domain.PageData, created bool, organizers []database.Organizer) {
 	@layouts.DashboardLayout(pageData) {
 		<div class="mt-16 sm:mt-0 w-full max-w-3xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+			<div hx-swap-oob="true" id="success-message" class="mb-4">
+				if created {
+					<div class="p-4 mt-4 text-sm rounded-lg bg-blue-50 text-blue-600">
+						New event created.
+					</div>
+				}
+			</div>
 			<form
 				enctype="multipart/form-data"
 				hx-post="/dashboard/create_event"
@@ -45,12 +54,11 @@ templ CreateEvent(pageData *domain.PageData, created bool, organizers []database
 									Event Title
 								</label>
 								<div class="mt-2">
-									<input
-										type="text"
-										name="event__title"
-										class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-600 sm:text-sm sm:leading-6"
-										placeholder="Enter event title"
-									/>
+									@components.Input(components.InputValues{
+										Type:        "text",
+										Name:        "event__title",
+										Placeholder: "Event event title.",
+									})
 								</div>
 							</div>
 							<div class="col-span-full">
@@ -61,34 +69,35 @@ templ CreateEvent(pageData *domain.PageData, created bool, organizers []database
 									Description
 								</label>
 								<div class="mt-2">
-									<textarea
-										maxlength="200"
-										name="event__description"
-										rows="3"
-										class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-600 sm:text-sm sm:leading-6"
-										placeholder="Write a description for your event"
-									></textarea>
+									@components.TextArea(components.InputValues{
+										Name:        "event__description",
+										Rows:        "3",
+										MaxLength:   "200",
+										Placeholder: "Write a description for your event.",
+									})
 								</div>
-								<p class="mt-3 text-sm leading-6 text-gray-600">
-									Write a few sentences about the event.
-								</p>
 							</div>
 							<div class="col-span-full">
 								<label class="block text-sm font-medium leading-6 text-gray-900">Event Tags</label>
 								<div class="mt-2 flex flex-wrap gap-4">
 									for _, filter := range Filters {
-										<div class="flex items-center">
-											<input
-												type="checkbox"
-												name="event__tags[]"
-												value={ filter.Label }
-												id={ "tag-" + filter.Label }
-												class="h-4 w-4 rounded border-gray-300 text-gray-600 focus:ring-gray-600"
-											/>
-											<label for={ "tag-" + filter.Label } class="ml-2 text-sm text-gray-900">
-												{ filter.Label }
-											</label>
-										</div>
+										@components.Checkbox(components.InputValues{
+											Type:  "checkbox",
+											Name:  "event__tags[]",
+											Value: filter.Label,
+										}, strings.Join([]string{"tag", filter.Label}, "-"))
+										// <div class="flex items-center">
+										// 	<input
+										// 		type="checkbox"
+										// 		name="event__tags[]"
+										// 		value={ filter.Label }
+										// 		id={ "tag-" + filter.Label }
+										// 		class="h-4 w-4 rounded border-gray-300 text-gray-600 focus:ring-gray-600"
+										// 	/>
+										// 	<label for={ "tag-" + filter.Label } class="ml-2 text-sm text-gray-900">
+										// 		{ filter.Label }
+										// 	</label>
+										// </div>
 									}
 								</div>
 							</div>
@@ -100,11 +109,10 @@ templ CreateEvent(pageData *domain.PageData, created bool, organizers []database
 									Start Date
 								</label>
 								<div class="mt-2">
-									<input
-										type="date"
-										name="event__date"
-										class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-600 sm:text-sm sm:leading-6"
-									/>
+									@components.Input(components.InputValues{
+										Type: "date",
+										Name: "event__date",
+									})
 								</div>
 							</div>
 							<div class="col-span-2">
@@ -116,7 +124,7 @@ templ CreateEvent(pageData *domain.PageData, created bool, organizers []database
 								</label>
 								<select
 									name="event__frequency"
-									class="mt-2 w-full text-sm rounded-lg border-gray-300"
+									class="mt-2 w-full text-sm rounded-md border-0 ring-1 ring-inset ring-gray-300  focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:leading-6"
 								>
 									<option value="once">Once</option>
 									<option value="weekly">Weekly</option>
@@ -179,27 +187,15 @@ templ CreateEvent(pageData *domain.PageData, created bool, organizers []database
 				<div
 					class="flex items-center justify-end gap-x-4 border-t border-gray-900/10 px-4 py-4 sm:px-8"
 				>
-					<button
-						type="button"
-						class="rounded-md px-3 py-2 text-sm font-semibold leading-6 text-gray-900 hover:bg-gray-50"
-					>
+					{{ isDisabled := false }}
+					@components.Button("isClean", isDisabled) {
 						Cancel
-					</button>
-					<button
-						type="submit"
-						class="rounded-md bg-gray-900 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600"
-					>
+					}
+					@components.Button("isPrimary", isDisabled) {
 						Create Event
-					</button>
+					}
 				</div>
 			</form>
-			<div hx-swap-oob="true" id="success-message" class="mb-4">
-				if created {
-					<div class="p-4 mt-4 text-sm rounded-lg bg-blue-50 text-blue-600">
-						New event created.
-					</div>
-				}
-			</div>
 		</div>
 	}
 }

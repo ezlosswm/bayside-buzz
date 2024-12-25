@@ -1,6 +1,7 @@
 package pages
 
 import (
+	"bayside-buzz/cmd/web/components"
 	"bayside-buzz/cmd/web/layouts"
 	"bayside-buzz/internal/domain"
 )
@@ -9,7 +10,6 @@ templ Contact(pageData *domain.PageData) {
 	@layouts.Layout(pageData) {
 		<div class="relative isolate">
 			<div class="mx-auto grid max-w-7xl grid-cols-1 lg:grid-cols-2">
-				<!-- Contact Information -->
 				<div
 					class="relative px-6 pb-20 pt-8 lg:static lg:px-8 lg:py-48"
 				>
@@ -72,14 +72,11 @@ templ Contact(pageData *domain.PageData) {
 									Name
 								</label>
 								<div class="mt-2.5">
-									<input
-										type="text"
-										name="name"
-										id="name"
-										autocomplete="given-name"
-										class="block w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-600 sm:text-sm sm:leading-6"
-										placeholder="Enter your name"
-									/>
+									@components.Input(components.InputValues{
+										Type:        "text",
+										Name:        "name",
+										Placeholder: "Enter your name.",
+									})
 								</div>
 							</div>
 							<div>
@@ -90,14 +87,11 @@ templ Contact(pageData *domain.PageData) {
 									Email
 								</label>
 								<div class="mt-2.5">
-									<input
-										type="email"
-										name="email"
-										id="email"
-										autocomplete="email"
-										class="block w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-600 sm:text-sm sm:leading-6"
-										placeholder="Enter your email"
-									/>
+									@components.Input(components.InputValues{
+										Type:        "email",
+										Name:        "email",
+										Placeholder: "Enter your email.",
+									})
 								</div>
 							</div>
 							<div>
@@ -108,13 +102,11 @@ templ Contact(pageData *domain.PageData) {
 									Subject
 								</label>
 								<div class="mt-2.5">
-									<input
-										type="text"
-										name="subject"
-										id="subject"
-										class="block w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-600 sm:text-sm sm:leading-6"
-										placeholder="Enter the subject"
-									/>
+									@components.Input(components.InputValues{
+										Type:        "text",
+										Name:        "subject",
+										Placeholder: "Enter the subject.",
+									})
 								</div>
 							</div>
 							<div>
@@ -125,23 +117,19 @@ templ Contact(pageData *domain.PageData) {
 									Message
 								</label>
 								<div class="mt-2.5">
-									<textarea
-										name="message"
-										id="message"
-										rows="8"
-										class="block w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-600 sm:text-sm sm:leading-6"
-										placeholder="Enter your message"
-									></textarea>
+									@components.TextArea(components.InputValues{
+										Name:        "message",
+										Rows:        "8",
+										Placeholder: "Enter your message.",
+									})
 								</div>
 							</div>
 						</div>
 						<div class="mt-8 flex justify-end">
-							<button
-								type="submit"
-								class="rounded-md bg-gray-900 px-3.5 py-2.5 text-center text-sm font-semibold text-white shadow-sm hover:bg-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600"
-							>
+							{{ isDisabled := false }}
+							@components.Button("isPrimary", isDisabled) {
 								Send message
-							</button>
+							}
 						</div>
 					</div>
 				</form>

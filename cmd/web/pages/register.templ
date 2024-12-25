@@ -1,6 +1,7 @@
 package pages
 
 import (
+	"bayside-buzz/cmd/web/components"
 	"bayside-buzz/cmd/web/layouts"
 	"bayside-buzz/internal/domain"
 )
@@ -8,7 +9,7 @@ import (
 templ Register(pageData *domain.PageData, isDisabled bool) {
 	@layouts.Layout(pageData) {
 		<div
-			class="flex min-h-screen flex-1 flex-col justify-center px-6 py-12 lg:px-8"
+			class="flex flex-col justify-center px-6 py-12 lg:px-8"
 		>
 			<div class="sm:mx-auto sm:w-full sm:max-w-sm">
 				<a href="/" class="flex justify-center">
@@ -19,7 +20,7 @@ templ Register(pageData *domain.PageData, isDisabled bool) {
 				>
 					Create your account
 				</h2>
-				<div id="error-message" class="mb-4">
+				<div id="error-message" class="mb-2">
 					if isDisabled {
 						<div class="p-4 mt-4 text-sm rounded-lg bg-red-50 text-red-600" role="alert">
 							Disabled: Only for admin users.
@@ -37,15 +38,11 @@ templ Register(pageData *domain.PageData, isDisabled bool) {
 							Full name
 						</label>
 						<div class="mt-2">
-							<input
-								id="name"
-								name="name"
-								type="text"
-								autocomplete="name"
-								required
-								class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-600 sm:text-sm sm:leading-6"
-								placeholder="John Doe"
-							/>
+							@components.Input(components.InputValues{
+								Type:        "text",
+								Name:        "name",
+								Placeholder: "John Doe",
+							})
 						</div>
 					</div>
 					<div>
@@ -56,15 +53,11 @@ templ Register(pageData *domain.PageData, isDisabled bool) {
 							Email address
 						</label>
 						<div class="mt-2">
-							<input
-								id="email"
-								name="email"
-								type="email"
-								autocomplete="email"
-								required
-								class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-600 sm:text-sm sm:leading-6"
-								placeholder="you@example.com"
-							/>
+							@components.Input(components.InputValues{
+								Type:        "email",
+								Name:        "email",
+								Placeholder: "example@gmail.com",
+							})
 						</div>
 					</div>
 					<div>
@@ -75,27 +68,17 @@ templ Register(pageData *domain.PageData, isDisabled bool) {
 							Password
 						</label>
 						<div class="mt-2">
-							<input
-								id="password"
-								name="password"
-								type="password"
-								autocomplete="new-password"
-								required
-								class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-600 sm:text-sm sm:leading-6"
-								placeholder="••••••••"
-							/>
+							@components.Input(components.InputValues{
+								Type:        "password",
+								Name:        "password",
+								Placeholder: "********",
+							})
 						</div>
 					</div>
-					<div>
-						<button
-							type="submit"
-							class="flex w-full justify-center rounded-md bg-gray-900 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600 hover:cursor-pointer disabled:bg-gray-500 disabled:cursor-not-allowed"
-							if isDisabled {
-								disabled
-							}
-						>
+					<div class="text-center">
+						@components.Button("isPrimary", isDisabled) {
 							Create account
-						</button>
+						}
 					</div>
 				</form>
 				<p class="mt-10 text-center text-sm text-gray-500">

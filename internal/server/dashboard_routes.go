@@ -123,7 +123,7 @@ func (s *Server) CreateEventPage(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if err := s.saveEvent(context.Background(), e, eventTags); err != nil {
-			slog.Error("error saving event\n", err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
@@ -173,8 +173,7 @@ func (s *Server) CreateOrganizerPage(w http.ResponseWriter, r *http.Request) {
 		if err := r.ParseMultipartForm(5 << 20); err != nil {
 			dashboard.CreateOrganizer(pageData, false, organizers).Render(context.Background(), w)
 
-			slog.Error("error parsing registration form\n", err)
-			// http.Error(w, err.Error(), http.StatusBadRequest)
+			// slog.Error("error parsing registration form\n", err.Error())
 			w.Header().Set("HX-Refresh", "true")
 			return
 		}
@@ -184,15 +183,10 @@ func (s *Server) CreateOrganizerPage(w http.ResponseWriter, r *http.Request) {
 		orgDesc := r.FormValue("org__description")
 		file, fileHeader, err := r.FormFile("org__img")
 		if err != nil {
-			slog.Error("err here", err)
 			http.Error(w, "unable to retrieve file.", http.StatusInternalServerError)
 			return
 		}
 		defer file.Close()
-		if err != nil {
-			http.Error(w, "unable to read file.", http.StatusInternalServerError)
-			return
-		}
 
 		imgPath, err := lib.FileUpload("organizers", file, *fileHeader)
 		if err != nil {
@@ -211,8 +205,8 @@ func (s *Server) CreateOrganizerPage(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		// dashboard.CreateOrganizer(pageData, true, organizers).Render(context.Background(), w)
 		w.Header().Set("HX-Refresh", "true")
-		// dashboard.CreateOrganizer(pageData, true, "", organizers).Render(context.Background(), w)
 	}
 }
 

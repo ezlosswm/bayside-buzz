@@ -10,18 +10,19 @@ import (
 templ Home(pageData *domain.PageData, events []database.GetEventsWithTagsRow, organizers []database.Organizer) {
 	@layouts.Layout(pageData) {
 		<div class=" relative isolate w-full">
-			<img src="/assets/images/corozal-sign.jpg" alt="Hero image" class=" -z-50 object-cover absolute w-full h-full"/>
+			<img src="/assets/images/corozal-sign.jpg" loading="lazy" alt="Hero image" class=" -z-50 object-cover absolute w-full h-full"/>
 			<div class="mx-auto max-w-2xl px-4 lg:px-8 min-h-screen grid place-items-center">
 				<div class="text-center">
-					<h1 class="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
+					<h1 class="mb-12 text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
 						Welcome to Bayside Buzz
 					</h1>
 					// <p class="mt-6 text-lg leading-8 text-gray-800">Your one-stop solution for managing organizations and events</p>
-					<div class="mt-10 flex items-center justify-center gap-x-6">
-						<a href="/contact" aria-label="Contact us" class="rounded-md bg-gray-800 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">
+					{{ isDisabled := false }}
+					@components.Button("isPrimary", isDisabled) {
+						<a href="/contact" aria-label="Contact us" class="flex items-center justify-center gap-x-2">
 							Contact us <span aria-hidden="true" aria-label="Right arrow">→</span>
 						</a>
-					</div>
+					}
 				</div>
 			</div>
 		</div>

@@ -1,0 +1,34 @@
+package components
+
+// Button only takes isPrimary || isClean || isAccent || shareButton and
+// defaults to a primary button type
+templ Button(btnType string, isDisabled bool) {
+	switch btnType {
+		case "isPrimary":
+			<button
+				class="rounded-md bg-gray-950 hover:bg-gray-900 px-4 py-2 text-sm font-semibold text-white shadow-sm  focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:bg-gray-800"
+				if isDisabled {
+					disabled
+				}
+			>
+				{ children... }
+			</button>
+		case "isClean":
+			<button class="rounded-md px-4 py-2 text-sm font-semibold leading-6 text-gray-900 hover:bg-gray-50">
+				{ children... }
+			</button>
+		case "isAccent":
+			<button
+				class="flex items-center justify-center gap-x-2 px-4 py-2 rounded-md hover:bg-white/10 transition-colors text-red-400"
+			>
+				{ children... }
+			</button>
+		case "shareButton":
+			<button
+				id="share-button"
+				class="rounded-full bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600"
+			>
+				{ children... }
+			</button>
+	}
+}

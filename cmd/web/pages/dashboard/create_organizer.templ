@@ -1,6 +1,7 @@
 package dashboard 
 
 import (
+	"bayside-buzz/cmd/web/components"
 	"bayside-buzz/cmd/web/layouts"
 	"bayside-buzz/internal/database"
 	"bayside-buzz/internal/domain"
@@ -9,7 +10,14 @@ import (
 
 templ CreateOrganizer(pageData *domain.PageData, created bool, organizers []database.Organizer) {
 	@layouts.DashboardLayout(pageData) {
-		<div class="mt-16 sm:mt-0 max-w-3xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+		<div class="mt-4 sm:mt-0 max-w-3xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+			<div hx-swap-oob="true" id="success-message" class="mb-4">
+				if created {
+					<div class="p-4 mt-4 text-sm rounded-lg bg-blue-50 text-blue-600">
+						New organizer created.
+					</div>
+				}
+			</div>
 			<form
 				enctype="multipart/form-data"
 				hx-post="/dashboard/create_organizer"
@@ -34,12 +42,11 @@ templ CreateOrganizer(pageData *domain.PageData, created bool, organizers []data
 									Organization Name
 								</label>
 								<div class="mt-2">
-									<input
-										type="text"
-										name="org__name"
-										class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-600 sm:text-sm sm:leading-6"
-										placeholder="Enter organization name"
-									/>
+									@components.Input(components.InputValues{
+										Type:        "text",
+										Name:        "org__name",
+										Placeholder: "Enter organization name.",
+									})
 								</div>
 							</div>
 							<div class="col-span-full">
@@ -50,16 +57,13 @@ templ CreateOrganizer(pageData *domain.PageData, created bool, organizers []data
 									Description
 								</label>
 								<div class="mt-2">
-									<textarea
-										name="org__description"
-										rows="3"
-										class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-600 sm:text-sm sm:leading-6"
-										placeholder="Write a description for your organization"
-									></textarea>
+									@components.TextArea(components.InputValues{
+										Name:        "org__description",
+										Rows:        "3",
+										MaxLength:   "200",
+										Placeholder: "Write a description for your organization",
+									})
 								</div>
-								<p class="mt-3 text-sm leading-6 text-gray-600">
-									Brief description of your organization.
-								</p>
 							</div>
 							<div class="col-span-full">
 								<label
@@ -102,34 +106,22 @@ templ CreateOrganizer(pageData *domain.PageData, created bool, organizers []data
 				<div
 					class="flex items-center justify-end gap-x-4 border-t border-gray-900/10 px-4 py-4 sm:px-8"
 				>
-					<button
-						type="button"
-						class="rounded-md px-3 py-2 text-sm font-semibold leading-6 text-gray-900 hover:bg-gray-50"
-					>
+					{{ isDisabled := false }}
+					@components.Button("isClean", isDisabled) {
 						Cancel
-					</button>
-					<button
-						type="submit"
-						class="rounded-md bg-gray-900 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600"
-					>
+					}
+					@components.Button("isPrimary", isDisabled) {
 						Create Organization
-					</button>
+					}
 				</div>
 			</form>
-			<div id="success-message" class="mb-4">
-				if created {
-					<div class="p-4 mt-4 text-sm rounded-lg bg-blue-50 text-blue-600">
-						New organizer created.
-					</div>
-				}
-			</div>
 		</div>
 		<table id="organizer-table" class="text-center w-full max-w-7xl mx-auto table-fixed">
-			<thead>
+			<thead class="bg-gray-100">
 				<tr>
-					<th class="border-r p-1">Image </th>
-					<th class="border-r p-1">Oranizer </th>
-					<th class="border-r p-1"></th>
+					<th class="p-2">Image </th>
+					<th class="p-2">Oranizer </th>
+					<th class="p-2"></th>
 				</tr>
 			</thead>
 			<tbody>
@@ -142,12 +134,12 @@ templ CreateOrganizer(pageData *domain.PageData, created bool, organizers []data
 }
 
 templ OrganizerTable(organizer database.Organizer) {
-	<tr id={ "organizer-" + fmt.Sprintf("%v", organizer.ID) }>
-		<td class="p-1">
+	<tr class="border-b" id={ "organizer-" + fmt.Sprintf("%v", organizer.ID) }>
+		<td class="p-2">
 			<img class="mx-auto shadow size-12 rounded-full" src={ organizer.ImgUrl } alt={ organizer.OrganizerName + " Cover Image" }/>
 		</td>
-		<td class="p-1">{ organizer.OrganizerName } </td>
-		<td class="p-1">
+		<td class="p-2">{ organizer.OrganizerName } </td>
+		<td class="p-2">
 			<span
 				class="inline-flex overflow-hidden rounded-md border bg-white shadow-sm"
 			>
