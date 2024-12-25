@@ -15,14 +15,15 @@ var (
 )
 
 func FileUpload(file multipart.File, fileHeader multipart.FileHeader) (string, error) {
+    path := strings.Join([]string{IMAGE_PATH, "/"}, "")
 	basePath := "cmd/web"
 
 	sanitizedFileName := filepath.Base(fileHeader.Filename)
-	if err := os.MkdirAll(basePath+IMAGE_PATH, os.ModePerm); err != nil {
+	if err := os.MkdirAll(basePath + path, os.ModePerm); err != nil {
 		return "", err
 	}
 
-	imgPath := strings.Join([]string{IMAGE_PATH, sanitizedFileName}, "")
+	imgPath := strings.Join([]string{path, sanitizedFileName}, "")
 
 	imgOut, err := os.Create(basePath + imgPath)
 	if err != nil {
