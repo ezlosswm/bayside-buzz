@@ -126,8 +126,7 @@ templ Contact(pageData *domain.PageData) {
 							</div>
 						</div>
 						<div class="mt-8 flex justify-end">
-							{{ isDisabled := false }}
-							@components.Button("isPrimary", isDisabled) {
+							@components.Button("isPrimary", false) {
 								Send message
 							}
 						</div>

@@ -78,8 +78,7 @@ templ Login(pageData *domain.PageData, err bool) {
 						</div>
 					</div>
 					<div class="text-center">
-						{{ isDisabled := false }}
-						@components.Button("isPrimary", isDisabled) {
+						@components.Button("isPrimary", false) {
 							Sign in
 						}
 					</div>

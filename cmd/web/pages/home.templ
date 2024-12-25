@@ -17,8 +17,7 @@ templ Home(pageData *domain.PageData, events []database.GetEventsWithTagsRow, or
 						Welcome to Bayside Buzz
 					</h1>
 					// <p class="mt-6 text-lg leading-8 text-gray-800">Your one-stop solution for managing organizations and events</p>
-					{{ isDisabled := false }}
-					@components.Button("isPrimary", isDisabled) {
+					@components.Button("isPrimary", false) {
 						<a href="/contact" aria-label="Contact us" class="flex items-center justify-center gap-x-2">
 							Contact us <span aria-hidden="true" aria-label="Right arrow">→</span>
 						</a>

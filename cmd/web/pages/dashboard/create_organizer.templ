@@ -106,11 +106,10 @@ templ CreateOrganizer(pageData *domain.PageData, created bool, organizers []data
 				<div
 					class="flex items-center justify-end gap-x-4 border-t border-gray-900/10 px-4 py-4 sm:px-8"
 				>
-					{{ isDisabled := false }}
-					@components.Button("isClean", isDisabled) {
+					@components.Button("isClean", false) {
 						Cancel
 					}
-					@components.Button("isPrimary", isDisabled) {
+					@components.Button("isPrimary", false) {
 						Create Organization
 					}
 				</div>
