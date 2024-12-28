@@ -69,8 +69,8 @@ func (s *Server) CreateEventPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method == "POST" {
-		r.Body = http.MaxBytesReader(w, r.Body, 5<<20)
-		if err := r.ParseMultipartForm(5 << 20); err != nil {
+		r.Body = http.MaxBytesReader(w, r.Body, 10<<20)
+		if err := r.ParseMultipartForm(10 << 20); err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			w.Header().Set("HX-Refresh", "true")
 			return
@@ -93,9 +93,9 @@ func (s *Server) CreateEventPage(w http.ResponseWriter, r *http.Request) {
 		}
 		defer file.Close()
 
-		imgPath, err := lib.FileUpload(file, *fileHeader)
+		url, err := lib.Uploader(s.storage, file, *fileHeader)
 		if err != nil {
-			http.Error(w, "Unable to create file.", http.StatusInternalServerError)
+			http.Error(w, "unable to create file.", http.StatusInternalServerError)
 			return
 		}
 
@@ -112,7 +112,7 @@ func (s *Server) CreateEventPage(w http.ResponseWriter, r *http.Request) {
 			Date:        pgDate,
 			Freq:        eventFrequency,
 			Organizer:   eventOrganizer,
-			Imgpath:     imgPath,
+			Imgpath:     url,
 			Userid:      user.ID,
 		}
 
@@ -163,8 +163,8 @@ func (s *Server) CreateOrganizerPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method == "POST" {
-		r.Body = http.MaxBytesReader(w, r.Body, 5<<20)
-		if err := r.ParseMultipartForm(5 << 20); err != nil {
+		r.Body = http.MaxBytesReader(w, r.Body, 10<<20)
+		if err := r.ParseMultipartForm(10 << 20); err != nil {
 			dashboard.CreateOrganizer(pageData, false, organizers).Render(context.Background(), w)
 
 			// slog.Error("error parsing registration form\n", err.Error())
@@ -182,7 +182,7 @@ func (s *Server) CreateOrganizerPage(w http.ResponseWriter, r *http.Request) {
 		}
 		defer file.Close()
 
-		imgPath, err := lib.FileUpload(file, *fileHeader)
+		url, err := lib.Uploader(s.storage, file, *fileHeader)
 		if err != nil {
 			http.Error(w, "unable to create file.", http.StatusInternalServerError)
 			return
@@ -191,8 +191,10 @@ func (s *Server) CreateOrganizerPage(w http.ResponseWriter, r *http.Request) {
 		newOrganizer := database.CreateOrganizerParams{
 			OrganizerName: orgName,
 			Description:   orgDesc,
-			ImgUrl:        imgPath,
+			ImgUrl:        url,
 		}
+
+		fmt.Printf("New organizer\nPath: %s", newOrganizer.ImgUrl)
 
 		if err := s.db.CreateOrganizer(context.Background(), newOrganizer); err != nil {
 			http.Error(w, "Error saving data to database.", http.StatusInternalServerError)

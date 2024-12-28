@@ -7,6 +7,9 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/appwrite/sdk-for-go/appwrite"
+	"github.com/appwrite/sdk-for-go/client"
+	"github.com/appwrite/sdk-for-go/storage"
 	"github.com/gorilla/sessions"
 	_ "github.com/joho/godotenv/autoload"
 
@@ -14,18 +17,25 @@ import (
 )
 
 var (
-	cookie = os.Getenv("COOKIE")
+	cookie         = os.Getenv("COOKIE")
+	appwriteClient client.Client
 )
 
 type Server struct {
 	port int
 
-	db    *database.Queries
-	store *sessions.CookieStore
+	db      *database.Queries
+	store   *sessions.CookieStore
+	storage *storage.Storage
 }
 
 func NewServer() *http.Server {
 	port, _ := strconv.Atoi(os.Getenv("PORT"))
+
+	appwriteClient = appwrite.NewClient(
+		appwrite.WithProject(os.Getenv("PROJECT_KEY")),
+		appwrite.WithKey(os.Getenv("API_KEY")),
+	)
 
 	session := sessions.NewCookieStore([]byte(cookie))
 	session.Options.HttpOnly = true
@@ -34,11 +44,10 @@ func NewServer() *http.Server {
 	NewServer := &Server{
 		port: port,
 
-		db:    database.NewSQCL(),
-		store: session,
+		db:      database.NewSQCL(),
+		store:   session,
+		storage: storage.New(appwriteClient),
 	}
-
-    fmt.Println("heyyy")
 
 	// Declare Server config
 	server := &http.Server{

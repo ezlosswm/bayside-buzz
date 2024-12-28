@@ -15,7 +15,7 @@ import (
 func (s *Server) HandleLogout(w http.ResponseWriter, r *http.Request) {
 	session, err := s.store.Get(r, "login")
 	if err != nil {
-		slog.Error("Error with getting session info.\n", err)
+		slog.Error("Error with getting session info.\n", "error", err)
 		return
 	}
 
@@ -49,7 +49,7 @@ func (s *Server) LoginPage(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == "POST" {
 		if err := r.ParseForm(); err != nil {
-			slog.Error("error parsing registration form\n", err)
+			slog.Error("error parsing registration form\n", "error", err)
 			w.Header().Add("HX-Refresh", "true")
 			return
 		}
