@@ -38,6 +38,8 @@ func NewServer() *http.Server {
 		store: session,
 	}
 
+    fmt.Println("heyyy")
+
 	// Declare Server config
 	server := &http.Server{
 		Addr:         fmt.Sprintf(":%d", NewServer.port),
