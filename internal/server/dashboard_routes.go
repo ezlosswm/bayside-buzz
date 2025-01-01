@@ -19,8 +19,9 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-// Dashboard
-func (s *Server) DashboardPage(w http.ResponseWriter, r *http.Request) {
+const MAX_IMAGE_SIZE = 10 << 20
+
+func (s *Server) HandleDashboard(w http.ResponseWriter, r *http.Request) {
 	var (
 		url   = r.Host
 		title = strings.Join([]string{SITE_NAME, "Dashboard"}, " - ")
@@ -36,7 +37,7 @@ func (s *Server) DashboardPage(w http.ResponseWriter, r *http.Request) {
 
 	e, err := s.db.GetEvents(context.Background())
 	if err != nil {
-		slog.Error("error getting event data\n", err.Error())
+		slog.Error("error getting event data\n", "error", err.Error())
 		return
 	}
 
@@ -48,7 +49,7 @@ func (s *Server) DashboardPage(w http.ResponseWriter, r *http.Request) {
 	dashboard.Dashboard(pageData, e, results).Render(context.Background(), w)
 }
 
-func (s *Server) CreateEventPage(w http.ResponseWriter, r *http.Request) {
+func (s *Server) HandleEvents(w http.ResponseWriter, r *http.Request) {
 	user, _ := r.Context().Value(contextKeyUser).(*database.User)
 
 	var (
@@ -69,8 +70,8 @@ func (s *Server) CreateEventPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method == "POST" {
-		r.Body = http.MaxBytesReader(w, r.Body, 10<<20)
-		if err := r.ParseMultipartForm(10 << 20); err != nil {
+		r.Body = http.MaxBytesReader(w, r.Body, MAX_IMAGE_SIZE)
+		if err := r.ParseMultipartForm(MAX_IMAGE_SIZE); err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			w.Header().Set("HX-Refresh", "true")
 			return
@@ -125,7 +126,7 @@ func (s *Server) CreateEventPage(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (s *Server) HandleDeleteEvent(w http.ResponseWriter, r *http.Request) {
+func (s *Server) HandleEventsDelete(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "DELETE" {
 		vars := mux.Vars(r)
 		idParam := vars["id"]
@@ -143,8 +144,94 @@ func (s *Server) HandleDeleteEvent(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (s *Server) HandleEventsEdit(w http.ResponseWriter, r *http.Request) {
+	id, err := lib.GetId(r)
+	if err != nil {
+		slog.Error("error getting id", "error", err)
+		return
+	}
+
+	var (
+		url   = r.Host
+		title = strings.Join([]string{SITE_NAME, "Update Organizer"}, " - ")
+	)
+
+	pageData := domain.NewPageData(SITE_NAME, title, "description", "pageType", "image", url)
+
+	event, _ := s.db.GetEvent(context.Background(), int32(id))
+	if r.Method == "GET" {
+		dashboard.EditEvent(pageData, event).Render(context.Background(), w)
+	}
+
+	if r.Method == "PATCH" {
+		r.Body = http.MaxBytesReader(w, r.Body, MAX_IMAGE_SIZE)
+		if err := r.ParseMultipartForm(MAX_IMAGE_SIZE); err != nil {
+			w.Header().Set("HX-Refresh", "true")
+			return
+		}
+		defer r.MultipartForm.RemoveAll()
+
+		eventTitle := r.FormValue("event__title")
+		eventDesc := r.FormValue("event__description")
+		eventDate := r.FormValue("event__date")
+		eventFrequency := r.FormValue("event__frequency")
+
+		layout := "2006-01-02"
+		parsedTime, _ := time.Parse(layout, eventDate)
+
+		var pgDate pgtype.Date
+		pgDate.Time = parsedTime
+		pgDate.Valid = true
+
+		var updatedEvent database.UpdateEventParams
+
+		file, fileHeader, err := r.FormFile("cover__img")
+		if err == nil {
+			defer file.Close()
+
+			// File exists, upload it
+			url, err := lib.Uploader(s.storage, file, *fileHeader)
+			if err != nil {
+				http.Error(w, "unable to create file.", http.StatusInternalServerError)
+				return
+			}
+
+			// Include the image URL in the update parameters
+			updatedEvent = database.UpdateEventParams{
+				Title:       eventTitle,
+				Description: eventDesc,
+				Date:        pgDate,
+				Freq:        eventFrequency,
+				Imgpath:     url,
+				ID:          id,
+			}
+		} else if err == http.ErrMissingFile {
+			// File is missing, proceed without it
+			updatedEvent = database.UpdateEventParams{
+				Title:       eventTitle,
+				Description: eventDesc,
+				Date:        pgDate,
+				Freq:        eventFrequency,
+				Imgpath:     event.Imgpath,
+				ID:          id,
+			}
+		} else {
+			// Handle unexpected errors
+			http.Error(w, "unable to retrieve file.", http.StatusInternalServerError)
+			return
+		}
+
+		if err := s.db.UpdateEvent(context.Background(), updatedEvent); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("HX-Redirect", "/dashboard")
+	}
+}
+
 // Organizer name is a unique value, make sure to handle error
-func (s *Server) CreateOrganizerPage(w http.ResponseWriter, r *http.Request) {
+func (s *Server) HandleOrganizers(w http.ResponseWriter, r *http.Request) {
 	var (
 		url   = r.Host
 		title = strings.Join([]string{SITE_NAME, "Create New Organizer"}, " - ")
@@ -163,11 +250,8 @@ func (s *Server) CreateOrganizerPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method == "POST" {
-		r.Body = http.MaxBytesReader(w, r.Body, 10<<20)
-		if err := r.ParseMultipartForm(10 << 20); err != nil {
-			dashboard.CreateOrganizer(pageData, false, organizers).Render(context.Background(), w)
-
-			// slog.Error("error parsing registration form\n", err.Error())
+		r.Body = http.MaxBytesReader(w, r.Body, MAX_IMAGE_SIZE)
+		if err := r.ParseMultipartForm(MAX_IMAGE_SIZE); err != nil {
 			w.Header().Set("HX-Refresh", "true")
 			return
 		}
@@ -194,39 +278,108 @@ func (s *Server) CreateOrganizerPage(w http.ResponseWriter, r *http.Request) {
 			ImgUrl:        url,
 		}
 
-		fmt.Printf("New organizer\nPath: %s", newOrganizer.ImgUrl)
-
 		if err := s.db.CreateOrganizer(context.Background(), newOrganizer); err != nil {
 			http.Error(w, "Error saving data to database.", http.StatusInternalServerError)
 			return
 		}
 
-		// dashboard.CreateOrganizer(pageData, true, organizers).Render(context.Background(), w)
 		w.Header().Set("HX-Refresh", "true")
 	}
 }
 
-func (s *Server) HandleDeleteOrganizer(w http.ResponseWriter, r *http.Request) {
+func (s *Server) HandleOrganizersDelete(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "DELETE" {
-		vars := mux.Vars(r)
-		idParam := vars["id"]
-
-		id, err := strconv.Atoi(idParam)
+		id, err := lib.GetId(r)
 		if err != nil {
-			slog.Error("error converting id")
+			slog.Error("error getting id", "error", err)
 			return
 		}
 
-		if err := s.db.DeleteOrganizer(context.Background(), int32(id)); err != nil {
+		if err := s.db.DeleteOrganizer(context.Background(), id); err != nil {
 			http.Error(w, "error delete organizer.", http.StatusInternalServerError)
 			return
 		}
 	}
 }
 
+func (s *Server) HandleOrganizersEdit(w http.ResponseWriter, r *http.Request) {
+	id, err := lib.GetId(r)
+	if err != nil {
+		slog.Error("error getting id", "error", err)
+		return
+	}
+
+	var (
+		url   = r.Host
+		title = strings.Join([]string{SITE_NAME, "Update Organizer"}, " - ")
+	)
+
+	pageData := domain.NewPageData(SITE_NAME, title, "description", "pageType", "image", url)
+
+	organizer, _ := s.db.GetOrganizer(context.Background(), id)
+	if r.Method == "GET" {
+		dashboard.EditOrganizer(pageData, organizer).Render(context.Background(), w)
+	}
+
+	if r.Method == "PATCH" {
+		r.Body = http.MaxBytesReader(w, r.Body, MAX_IMAGE_SIZE)
+		if err := r.ParseMultipartForm(MAX_IMAGE_SIZE); err != nil {
+			w.Header().Set("HX-Refresh", "true")
+			return
+		}
+		defer r.MultipartForm.RemoveAll()
+
+		var updatedOrganizer database.UpdateOrganizerParams
+
+		orgName := r.FormValue("org__name")
+		orgDesc := r.FormValue("org__description")
+
+		// Try to retrieve the file
+		file, fileHeader, err := r.FormFile("org__img")
+		if err == nil {
+			defer file.Close()
+
+			// File exists, upload it
+			url, err := lib.Uploader(s.storage, file, *fileHeader)
+			if err != nil {
+				http.Error(w, "unable to create file.", http.StatusInternalServerError)
+				return
+			}
+
+			// Include the image URL in the update parameters
+			updatedOrganizer = database.UpdateOrganizerParams{
+				OrganizerName: orgName,
+				Description:   orgDesc,
+				ImgUrl:        url,
+				ID:            id,
+			}
+		} else if err == http.ErrMissingFile {
+			// File is missing, proceed without it
+			updatedOrganizer = database.UpdateOrganizerParams{
+				OrganizerName: orgName,
+				Description:   orgDesc,
+				ImgUrl:        organizer.ImgUrl,
+				ID:            id,
+			}
+		} else {
+			// Handle unexpected errors
+			http.Error(w, "unable to retrieve file.", http.StatusInternalServerError)
+			return
+		}
+
+		// Update the database
+		if err := s.db.UpdateOrganizer(context.Background(), updatedOrganizer); err != nil {
+			http.Error(w, "Error saving data to database.", http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("HX-Redirect", "/dashboard/organizers")
+	}
+
+}
+
 func (s *Server) saveEvent(ctx context.Context, event database.CreateEventParams, tags []string) error {
 	var postgresDate time.Time
-	fmt.Printf("%v\ntype%T", event.Date, event.Date)
 	if event.Date.Valid {
 		postgresDate = event.Date.Time
 	} else {

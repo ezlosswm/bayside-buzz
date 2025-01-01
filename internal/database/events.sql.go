@@ -273,3 +273,35 @@ func (q *Queries) GetEventsWithTags(ctx context.Context) ([]GetEventsWithTagsRow
 	}
 	return items, nil
 }
+
+const updateEvent = `-- name: UpdateEvent :exec
+UPDATE events
+SET
+    title = $2,
+    description = $3,
+    date = $4,
+    freq = $5,
+    imgPath = $6
+WHERE id = $1
+`
+
+type UpdateEventParams struct {
+	ID          int32
+	Title       string
+	Description string
+	Date        pgtype.Date
+	Freq        string
+	Imgpath     string
+}
+
+func (q *Queries) UpdateEvent(ctx context.Context, arg UpdateEventParams) error {
+	_, err := q.db.Exec(ctx, updateEvent,
+		arg.ID,
+		arg.Title,
+		arg.Description,
+		arg.Date,
+		arg.Freq,
+		arg.Imgpath,
+	)
+	return err
+}

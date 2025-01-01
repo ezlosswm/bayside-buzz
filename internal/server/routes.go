@@ -36,11 +36,15 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.HandleFunc("/logout", s.HandleLogout).Methods(http.MethodPost)
 	r.HandleFunc("/register", s.RegisterPage).Methods(http.MethodGet, http.MethodPost)
 
-	r.HandleFunc("/dashboard", s.Authenticate(s.DashboardPage))
-	r.HandleFunc("/dashboard/create_event", s.Authenticate(s.CreateEventPage))
-	r.HandleFunc("/dashboard/create_event/{id:[0-9]+}", s.Authenticate(s.HandleDeleteEvent)).Methods(http.MethodDelete)
-	r.HandleFunc("/dashboard/create_organizer", s.Authenticate(s.CreateOrganizerPage)).Methods(http.MethodGet, http.MethodPost)
-	r.HandleFunc("/dashboard/create_organizer/{id:[0-9]+}", s.Authenticate(s.HandleDeleteOrganizer)).Methods(http.MethodDelete)
+	dashboard := r.PathPrefix("/dashboard").Subrouter()
+	dashboard.HandleFunc("", s.Authenticate(s.HandleDashboard))
+	dashboard.HandleFunc("/events", s.Authenticate(s.HandleEvents))
+	dashboard.HandleFunc("/events/{id:[0-9]+}/delete", s.Authenticate(s.HandleEventsDelete))
+	dashboard.HandleFunc("/events/{id:[0-9]+}/edit", s.Authenticate(s.HandleEventsEdit))
+
+	dashboard.HandleFunc("/organizers", s.Authenticate(s.HandleOrganizers))
+	dashboard.HandleFunc("/organizers/{id:[0-9]+}/delete", s.Authenticate(s.HandleOrganizersDelete))
+	dashboard.HandleFunc("/organizers/{id:[0-9]+}/edit", s.Authenticate(s.HandleOrganizersEdit))
 
 	return r
 }

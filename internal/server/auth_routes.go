@@ -113,7 +113,7 @@ func (s *Server) RegisterPage(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		count, err := s.db.CountUsers(context.Background())
 		if err != nil {
-			slog.Error("error counting user: \n", err)
+			slog.Error("error counting user: \n", "error", err)
 			return
 		}
 
@@ -126,7 +126,7 @@ func (s *Server) RegisterPage(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == "POST" {
 		if err := r.ParseForm(); err != nil {
-			slog.Error("error parsing registration form\n", err)
+			slog.Error("error parsing registration form\n", "error", err)
 			w.Header().Add("HX-Refresh", "true")
 			return
 		}
@@ -139,7 +139,7 @@ func (s *Server) RegisterPage(w http.ResponseWriter, r *http.Request) {
 		// Authenticate User
 		passwordHash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 		if err != nil {
-			slog.Error("error generating hash: \n", err)
+			slog.Error("error generating hash: \n", "error", err)
 			return
 		}
 
@@ -150,7 +150,7 @@ func (s *Server) RegisterPage(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if err = s.db.CreateUser(context.Background(), userParams); err != nil {
-			slog.Error("error creating user: \n", err)
+			slog.Error("error creating user: \n", "error", err)
 			return
 		}
 

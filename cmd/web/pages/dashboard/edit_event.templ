@@ -5,34 +5,22 @@ import (
 	"bayside-buzz/cmd/web/layouts"
 	"bayside-buzz/internal/database"
 	"bayside-buzz/internal/domain"
-	"strings"
+	"fmt"
 )
 
-templ CreateEvent(pageData *domain.PageData, created bool, organizers []database.Organizer) {
+templ EditEvent(pageData *domain.PageData, event database.Event) {
 	@layouts.DashboardLayout(pageData) {
 		<div class="mt-16 sm:mt-0 w-full max-w-3xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-			<div hx-swap-oob="true" id="success-message" class="mb-4">
-				if created {
-					<div class="p-4 mt-4 text-sm rounded-lg bg-blue-50 text-blue-600">
-						New event created.
-					</div>
-				}
-			</div>
 			<form
 				enctype="multipart/form-data"
-				hx-post="/dashboard/events"
-				hx-target="#success-message"
-				hx-swap="innerHTML"
+				hx-patch={ fmt.Sprintf("/dashboard/events/%v/edit", event.ID) }
 				class="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl md:col-span-2"
 			>
 				<div class="px-4 py-6 sm:p-8">
 					<div class="max-w-3xl">
 						<h2 class="text-base font-semibold leading-7 text-gray-900">
-							Create New Event
+							Update Event
 						</h2>
-						<p class="mt-1 text-sm leading-6 text-gray-600">
-							Fill in the details below to create a new event.
-						</p>
 						<div class="mt-10 space-y-8">
 							<div class="sm:col-span-4">
 								<label
@@ -45,7 +33,7 @@ templ CreateEvent(pageData *domain.PageData, created bool, organizers []database
 									@components.Input(components.InputValues{
 										Type:        "text",
 										Name:        "event__title",
-										Placeholder: "Event event title.",
+										Placeholder: event.Title,
 									})
 								</div>
 							</div>
@@ -61,32 +49,8 @@ templ CreateEvent(pageData *domain.PageData, created bool, organizers []database
 										Name:        "event__description",
 										Rows:        "3",
 										MaxLength:   "200",
-										Placeholder: "Write a description for your event.",
+										Placeholder: event.Description,
 									})
-								</div>
-							</div>
-							<div class="col-span-full">
-								<label class="block text-sm font-medium leading-6 text-gray-900">Event Tags</label>
-								<div class="mt-2 flex flex-wrap gap-4">
-									for _, filter := range Filters {
-										@components.Checkbox(components.InputValues{
-											Type:  "checkbox",
-											Name:  "event__tags[]",
-											Value: filter.Label,
-										}, strings.Join([]string{"tag", filter.Label}, "-"))
-										// <div class="flex items-center">
-										// 	<input
-										// 		type="checkbox"
-										// 		name="event__tags[]"
-										// 		value={ filter.Label }
-										// 		id={ "tag-" + filter.Label }
-										// 		class="h-4 w-4 rounded border-gray-300 text-gray-600 focus:ring-gray-600"
-										// 	/>
-										// 	<label for={ "tag-" + filter.Label } class="ml-2 text-sm text-gray-900">
-										// 		{ filter.Label }
-										// 	</label>
-										// </div>
-									}
 								</div>
 							</div>
 							<div class="sm:grid-cols-2">
@@ -98,8 +62,9 @@ templ CreateEvent(pageData *domain.PageData, created bool, organizers []database
 								</label>
 								<div class="mt-2">
 									@components.Input(components.InputValues{
-										Type: "date",
-										Name: "event__date",
+										Type:        "date",
+										Name:        "event__date",
+										Placeholder: event.Date.Time.Format("2006-01-02"),
 									})
 								</div>
 							</div>
@@ -151,11 +116,10 @@ templ CreateEvent(pageData *domain.PageData, created bool, organizers []database
 										name="cover__img"
 										accept="image/*"
 										class="cursor-pointer block w-full text-sm md:text-base text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100"
-										required
 									/>
 								</div>
 							</div>
-							<div class="col-span-full">
+							<!-- div class="col-span-full">
 								<label
 									for="event__organizer"
 									class="block text-sm font-medium leading-6 text-gray-900 flex-1"
@@ -168,7 +132,7 @@ templ CreateEvent(pageData *domain.PageData, created bool, organizers []database
 								>
 									@organizerSelect(organizers)
 								</select>
-							</div>
+							</div -->
 						</div>
 					</div>
 				</div>
@@ -179,17 +143,10 @@ templ CreateEvent(pageData *domain.PageData, created bool, organizers []database
 						Cancel
 					}
 					@components.Button("isPrimary", false) {
-						Create Event
+						Update
 					}
 				</div>
 			</form>
 		</div>
-	}
-}
-
-templ organizerSelect(organizers []database.Organizer) {
-	<option value="">Please select</option>
-	for _, o := range organizers {
-		<option value={ o.OrganizerName }>{ o.OrganizerName }</option>
 	}
 }

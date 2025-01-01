@@ -93,6 +93,7 @@ make sqlc-generate
 - Tailwind
 - HTMX
 - Postgres
+- Appwrite
 
 ## To Do
 
@@ -100,5 +101,4 @@ make sqlc-generate
 - [ ] Add a way to manage paid ads
 - [x] Ability to share an event
 - [x] Switch to Postgres
-- [ ] Dockerize
-- [ ] Deploy
+- [x] Deploy

@@ -59,5 +59,15 @@ LEFT JOIN
 GROUP BY
     e.id, e.title, e.description, e.date, e.freq, e.organizer, e.imgPath, e.userId;
 
+-- name: UpdateEvent :exec
+UPDATE events
+SET
+    title = $2,
+    description = $3,
+    date = $4,
+    freq = $5,
+    imgPath = $6
+WHERE id = $1;
+
 -- name: DeleteEvent :exec
 DELETE FROM events WHERE id = $1;

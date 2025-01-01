@@ -6,6 +6,19 @@ templ Button(btnType string, isDisabled bool) {
 	switch btnType {
 		case "isPrimary":
 			<button
+				hx-indicator="#spinner"
+				class="rounded-md bg-gray-950 hover:bg-gray-900 px-4 py-2 text-sm font-semibold text-white shadow-sm  focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:bg-gray-800 flex justify-center items-center gap-x-2"
+				if isDisabled {
+					disabled
+				}
+			>
+				{ children... }
+				<span>
+					<img src="/assets/images/rolling.svg" class="htmx-indicator size-4" id="spinner"/>
+				</span>
+			</button>
+		case "isRedirect":
+			<button
 				class="rounded-md bg-gray-950 hover:bg-gray-900 px-4 py-2 text-sm font-semibold text-white shadow-sm  focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:bg-gray-800"
 				if isDisabled {
 					disabled

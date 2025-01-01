@@ -49,6 +49,22 @@ func (q *Queries) DeleteOrganizer(ctx context.Context, id int32) error {
 	return err
 }
 
+const getOrganizer = `-- name: GetOrganizer :one
+SELECT id, organizer_name, description, img_url FROM organizers WHERE id = $1
+`
+
+func (q *Queries) GetOrganizer(ctx context.Context, id int32) (Organizer, error) {
+	row := q.db.QueryRow(ctx, getOrganizer, id)
+	var i Organizer
+	err := row.Scan(
+		&i.ID,
+		&i.OrganizerName,
+		&i.Description,
+		&i.ImgUrl,
+	)
+	return i, err
+}
+
 const getOrganizers = `-- name: GetOrganizers :many
 SELECT id, organizer_name, description, img_url FROM organizers
 `
@@ -76,4 +92,31 @@ func (q *Queries) GetOrganizers(ctx context.Context) ([]Organizer, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateOrganizer = `-- name: UpdateOrganizer :exec
+UPDATE organizers 
+SET 
+    organizer_name = $1, 
+    description = $2,
+    img_url = $3
+WHERE 
+    id = $4
+`
+
+type UpdateOrganizerParams struct {
+	OrganizerName string
+	Description   string
+	ImgUrl        string
+	ID            int32
+}
+
+func (q *Queries) UpdateOrganizer(ctx context.Context, arg UpdateOrganizerParams) error {
+	_, err := q.db.Exec(ctx, updateOrganizer,
+		arg.OrganizerName,
+		arg.Description,
+		arg.ImgUrl,
+		arg.ID,
+	)
+	return err
 }
