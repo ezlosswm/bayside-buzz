@@ -1,6 +1,6 @@
 package components
 
-templ Navbar() {
+templ Navbar(isLoggedIn bool) {
 	<header
 		role="banner"
 		id="header"
@@ -26,6 +26,11 @@ templ Navbar() {
 					<a href="/" class="nav-link">Home</a>
 					// <a href="/about" class="nav-link">About</a>
 					<a href="/contact" class="nav-link">Contact</a>
+					if isLoggedIn {
+						@Button("isRedirect", false) {
+							<a href="/dashboard">Dashboard</a>
+						}
+					}
 				</nav>
 				// Mobile Menu Button
 				<button
@@ -54,6 +59,11 @@ templ Navbar() {
 				<a href="/" class="text-2xl hover:text-gray-300">Home</a>
 				// <a href="/about" class="text-2xl hover:text-gray-300">About</a>
 				<a href="/contact" class="text-2xl hover:text-gray-300">Contact</a>
+				if isLoggedIn {
+					@Button("isRedirect", false) {
+						<a href="/dashboard">Dashboard</a>
+					}
+				}
 				<button
 					id="close__btn"
 					aria-label="Close mobile menu"

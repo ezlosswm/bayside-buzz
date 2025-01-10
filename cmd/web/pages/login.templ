@@ -6,8 +6,8 @@ import (
 	"bayside-buzz/internal/domain"
 )
 
-templ Login(pageData *domain.PageData, err bool) {
-	@layouts.Layout(pageData) {
+templ Login(settings domain.Settings, err bool) {
+	@layouts.Layout(settings) {
 		<div
 			class="flex flex-1 flex-col justify-center px-6 py-12 lg:px-8"
 		>
@@ -78,7 +78,7 @@ templ Login(pageData *domain.PageData, err bool) {
 						</div>
 					</div>
 					<div class="text-center">
-						@components.Button("isPrimary", false) {
+						@components.Button("isRedirect", false) {
 							Sign in
 						}
 					</div>

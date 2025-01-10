@@ -6,8 +6,8 @@ import (
 	"bayside-buzz/internal/domain"
 )
 
-templ Register(pageData *domain.PageData, isDisabled bool) {
-	@layouts.Layout(pageData) {
+templ Register(settings domain.Settings) {
+	@layouts.Layout(settings) {
 		<div
 			class="flex flex-col justify-center px-6 py-12 lg:px-8"
 		>
@@ -21,7 +21,7 @@ templ Register(pageData *domain.PageData, isDisabled bool) {
 					Create your account
 				</h2>
 				<div id="error-message" class="mb-2">
-					if isDisabled {
+					if settings.IsDisabled {
 						<div class="p-4 mt-4 text-sm rounded-lg bg-red-50 text-red-600" role="alert">
 							Disabled: Only for admin users.
 						</div>
@@ -76,7 +76,7 @@ templ Register(pageData *domain.PageData, isDisabled bool) {
 						</div>
 					</div>
 					<div class="text-center">
-						@components.Button("isPrimary", isDisabled) {
+						@components.Button("isRedirect", settings.IsDisabled) {
 							Create account
 						}
 					</div>

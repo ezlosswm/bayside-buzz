@@ -30,21 +30,18 @@ func (s *Server) HandleLogout(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) LoginPage(w http.ResponseWriter, r *http.Request) {
-	var (
-		title = strings.Join([]string{SITE_NAME, "Login"}, " - ")
-		url   = r.Host
-	)
-
-	const (
-		description = "Access your Bayside Breeze account to manage the events happening in Corozal Town, Belize."
-		pageType    = "website"
-		image       = "/assets/images/corozal-sign.jpg"
-	)
-
-	pageData := domain.NewPageData(SITE_NAME, title, description, pageType, image, url)
+	settings := domain.NewSettings()
+	settings.PageData.URL = r.Host
+	settings.PageData.Title = strings.Join([]string{SITE_NAME, "Login"}, " - ")
 
 	if r.Method == "GET" {
-		pages.Login(pageData, false).Render(context.Background(), w)
+		ok := s.checkSession(r)
+		if !ok {
+			pages.Login(settings, true).Render(context.Background(), w)
+		}
+
+		settings.IsLoggedIn = true
+		pages.Login(settings, false).Render(context.Background(), w)
 	}
 
 	if r.Method == "POST" {
@@ -59,7 +56,7 @@ func (s *Server) LoginPage(w http.ResponseWriter, r *http.Request) {
 
 		user, err := s.authenticateUser(email, password)
 		if err != nil {
-			pages.Login(pageData, true).Render(context.Background(), w)
+			pages.Login(settings, true).Render(context.Background(), w)
 			return
 		}
 
@@ -98,17 +95,9 @@ func (s *Server) authenticateUser(email, password string) (*database.User, error
 }
 
 func (s *Server) RegisterPage(w http.ResponseWriter, r *http.Request) {
-	var (
-		title = strings.Join([]string{SITE_NAME, "Register"}, " - ")
-		url   = r.Host
-	)
-	const (
-		description = "Register to Bayside Breeze"
-		pageType    = "website"
-		image       = "/assets/images/corozal-sign.jpg"
-	)
-
-	pageData := domain.NewPageData(SITE_NAME, title, description, pageType, image, url)
+	settings := domain.NewSettings()
+	settings.PageData.URL = r.Host
+	settings.PageData.Title = strings.Join([]string{settings.PageData.SiteName, "Register"}, " - ")
 
 	if r.Method == "GET" {
 		count, err := s.db.CountUsers(context.Background())
@@ -117,10 +106,17 @@ func (s *Server) RegisterPage(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		ok := s.checkSession(r)
+		if !ok {
+			pages.Register(settings).Render(context.Background(), w)
+		}
+
+		settings.IsLoggedIn = true
 		if count == 1 {
-			pages.Register(pageData, true).Render(context.Background(), w)
+            settings.IsDisabled = true
+			pages.Register(settings).Render(context.Background(), w)
 		} else {
-			pages.Register(pageData, false).Render(context.Background(), w)
+			pages.Register(settings).Render(context.Background(), w)
 		}
 	}
 

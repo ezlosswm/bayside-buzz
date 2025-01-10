@@ -2,7 +2,6 @@ package server
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 	"net/http"
 	"strconv"
@@ -49,36 +48,21 @@ func (s *Server) RegisterRoutes() http.Handler {
 	return r
 }
 
-// CORS middleware
-func (s *Server) corsMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// CORS Headers
-		w.Header().Set("Access-Control-Allow-Origin", "*") // Wildcard allows all origins
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH")
-		w.Header().Set("Access-Control-Allow-Headers", "Accept, Authorization, Content-Type")
-		w.Header().Set("Access-Control-Allow-Credentials", "false") // Credentials not allowed with wildcard origins
+func (s *Server) checkSession(r *http.Request) bool {
+	session, err := s.store.Get(r, "login")
+	if err != nil {
+		slog.Error("error getting user", "error", err)
+		return false
+	}
 
-		// Handle preflight OPTIONS requests
-		if r.Method == http.MethodOptions {
-			w.WriteHeader(http.StatusNoContent)
-			return
-		}
+	_, ok := session.Values["userId"]
 
-		next.ServeHTTP(w, r)
-	})
+	return ok
 }
 
 func (s *Server) HomePage(w http.ResponseWriter, r *http.Request) {
-	var url = r.Host
-
-	const (
-		title       = "Bayside Buzz"
-		description = "Discover Events in Corozal, Belize - Bayside Buzz"
-		pageType    = "website"
-		image       = "/assets/images/corozal-sign.jpg"
-	)
-
-	pageData := domain.NewPageData(SITE_NAME, title, description, pageType, image, url)
+	settings := domain.NewSettings()
+	settings.PageData.URL = r.Host
 
 	if r.Method == "GET" {
 		organizers, err := s.db.GetOrganizers(context.Background())
@@ -98,7 +82,14 @@ func (s *Server) HomePage(w http.ResponseWriter, r *http.Request) {
 					"hint", pgErr.Hint)
 			}
 		}
-		pages.Home(pageData, events, organizers).Render(context.Background(), w)
+
+		ok := s.checkSession(r)
+		if !ok {
+			pages.Home(settings, events, organizers).Render(context.Background(), w)
+		}
+
+		settings.IsLoggedIn = true
+		pages.Home(settings, events, organizers).Render(context.Background(), w)
 	}
 }
 
@@ -108,35 +99,28 @@ func (s *Server) EventPage(w http.ResponseWriter, r *http.Request) {
 
 	events, _ := s.db.GetEventWithTags(context.Background(), int32(id))
 
-	var (
-		url   = r.Host
-		image = fmt.Sprintf("%v", events.Imgpath)
-	)
+	settings := domain.NewSettings()
+	settings.PageData.URL = r.Host
+	settings.PageData.Title = strings.Join([]string{settings.PageData.SiteName, events.Title}, " - ")
 
-	const (
-		description = "Discover Events in Corozal, Belize - Bayside Buzz"
-		pageType    = "article"
-	)
+	ok := s.checkSession(r)
+	if !ok {
+		pages.Event(settings, events).Render(context.Background(), w)
+	}
 
-	// update OG info to match the event
-	title := strings.Join([]string{SITE_NAME, events.Title}, " - ")
-	pageData := domain.NewPageData(SITE_NAME, title, description, pageType, image, url)
-
-	pages.Event(pageData, events).Render(context.Background(), w)
+	settings.IsLoggedIn = true
+	pages.Event(settings, events).Render(context.Background(), w)
 }
 
 func (s *Server) ContactPage(w http.ResponseWriter, r *http.Request) {
-	var (
-		url   = r.Host
-		title = strings.Join([]string{SITE_NAME, "Contact Us"}, " - ")
-	)
-	const (
-		description = "Have questions, need assistance or want to advertise your business? Reach out to the Bayside Breeze team through our contact form or find our contact details here."
-		pageType    = "website"
-		image       = "/assets/images/corozal-sign.jpg"
-	)
+	settings := domain.NewSettings()
+	settings.PageData.URL = r.Host
 
-	pageData := domain.NewPageData(SITE_NAME, title, description, pageType, image, url)
+	ok := s.checkSession(r)
+	if !ok {
+		pages.Contact(settings).Render(context.Background(), w)
+	}
 
-	pages.Contact(pageData).Render(context.Background(), w)
+	settings.IsLoggedIn = true
+	pages.Contact(settings).Render(context.Background(), w)
 }

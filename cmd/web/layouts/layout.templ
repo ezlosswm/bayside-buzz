@@ -5,9 +5,9 @@ import (
 	"bayside-buzz/internal/domain"
 )
 
-templ Layout(pageData *domain.PageData) {
-	@Base(pageData) {
-		@components.Navbar()
+templ Layout(settings domain.Settings) {
+	@Base(&settings.PageData) {
+		@components.Navbar(settings.IsLoggedIn)
 		<img
 			id="background"
 			src="/assets/images/subtle-prism.svg"

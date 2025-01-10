@@ -1686,7 +1686,6 @@ select {
 }
 
 .htmx-request .htmx-indicator{
-  display:none;
   opacity:1;
 }
 
