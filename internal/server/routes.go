@@ -86,6 +86,7 @@ func (s *Server) HomePage(w http.ResponseWriter, r *http.Request) {
 		ok := s.checkSession(r)
 		if !ok {
 			pages.Home(settings, events, organizers).Render(context.Background(), w)
+            return
 		}
 
 		settings.IsLoggedIn = true
@@ -106,6 +107,7 @@ func (s *Server) EventPage(w http.ResponseWriter, r *http.Request) {
 	ok := s.checkSession(r)
 	if !ok {
 		pages.Event(settings, events).Render(context.Background(), w)
+        return
 	}
 
 	settings.IsLoggedIn = true
@@ -119,6 +121,7 @@ func (s *Server) ContactPage(w http.ResponseWriter, r *http.Request) {
 	ok := s.checkSession(r)
 	if !ok {
 		pages.Contact(settings).Render(context.Background(), w)
+        return
 	}
 
 	settings.IsLoggedIn = true

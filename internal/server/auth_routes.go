@@ -37,11 +37,13 @@ func (s *Server) LoginPage(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		ok := s.checkSession(r)
 		if !ok {
-			pages.Login(settings, true).Render(context.Background(), w)
+            settings.IsError = true
+			pages.Login(settings).Render(context.Background(), w)
+            return
 		}
 
 		settings.IsLoggedIn = true
-		pages.Login(settings, false).Render(context.Background(), w)
+		pages.Login(settings).Render(context.Background(), w)
 	}
 
 	if r.Method == "POST" {
@@ -56,7 +58,8 @@ func (s *Server) LoginPage(w http.ResponseWriter, r *http.Request) {
 
 		user, err := s.authenticateUser(email, password)
 		if err != nil {
-			pages.Login(settings, true).Render(context.Background(), w)
+            settings.IsError = true
+			pages.Login(settings).Render(context.Background(), w)
 			return
 		}
 
@@ -109,14 +112,17 @@ func (s *Server) RegisterPage(w http.ResponseWriter, r *http.Request) {
 		ok := s.checkSession(r)
 		if !ok {
 			pages.Register(settings).Render(context.Background(), w)
+            return
 		}
 
 		settings.IsLoggedIn = true
 		if count == 1 {
             settings.IsDisabled = true
 			pages.Register(settings).Render(context.Background(), w)
+            return
 		} else {
 			pages.Register(settings).Render(context.Background(), w)
+            return
 		}
 	}
 
