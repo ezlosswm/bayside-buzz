@@ -37,12 +37,10 @@ func (s *Server) LoginPage(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		ok := s.checkSession(r)
 		if !ok {
-            settings.IsError = true
 			pages.Login(settings).Render(context.Background(), w)
             return
 		}
 
-		settings.IsLoggedIn = true
 		pages.Login(settings).Render(context.Background(), w)
 	}
 
