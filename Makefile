@@ -16,8 +16,14 @@ templ-install:
 			exit 1; \
 		fi; \
 	fi
+	
 tailwind-install:
+	@if ! command -v npx > /dev/null; then \
+		echo "npx not found. Please install Node.js and npm."; \
+		exit 1; \
+	fi
 	@npm install tailwindcss @tailwindcss/cli
+
 
 build: tailwind-install templ-install
 	@echo "Building..."
