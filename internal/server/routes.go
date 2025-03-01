@@ -2,7 +2,6 @@ package server
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"log/slog"
 	"net/http"
@@ -112,7 +111,7 @@ func (s *Server) FilterByOrganizer(w http.ResponseWriter, r *http.Request) {
 		log.Println("Error getting events by organizer", "error", err)
 	}
 
-		components.AllEvents(eventsByOrg).Render(context.Background(), w)
+	components.AllEvents(eventsByOrg).Render(context.Background(), w)
 }
 
 func (s *Server) EventPage(w http.ResponseWriter, r *http.Request) {
