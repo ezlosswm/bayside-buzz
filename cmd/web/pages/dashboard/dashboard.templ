@@ -9,10 +9,10 @@ import (
 
 templ Dashboard(pageData *domain.PageData, events []database.Event, results *domain.Results) {
 	@layouts.DashboardLayout(pageData) {
-		<div class="bg-white shadow rounded-lg">
+		<div class="bg-white shadow-sm rounded-lg">
 			@components.Results(results)
 		</div>
-		<div class="max-w-7xl w-full mx-auto bg-white shadow rounded-lg overflow-hidden">
+		<div class="max-w-7xl w-full mx-auto bg-white shadow-sm rounded-lg overflow-hidden">
 			<div class="px-6 py-5 border-b border-gray-200">
 				<h2 class="text-lg font-semibold text-gray-900">Events</h2>
 			</div>

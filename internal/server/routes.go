@@ -99,8 +99,6 @@ func (s *Server) HomePage(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) FilterByOrganizer(w http.ResponseWriter, r *http.Request) {
 	orgParam := mux.Vars(r)["organizer"]
-	fmt.Printf("orgParam = %s\n", orgParam)
-
 	if orgParam == "all" {
 		allEvents, err := s.db.GetEvents(context.Background())
 		if err != nil {

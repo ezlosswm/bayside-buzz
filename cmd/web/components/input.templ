@@ -8,7 +8,7 @@ templ Input(input InputValues) {
 	<input
 		type={ input.Type }
 		name={ input.Name }
-		class="block w-full rounded-md border-0 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-sm sm:leading-6"
+		class="block w-full rounded-md border-0 py-2 text-gray-900 shadow-xs ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-sm sm:leading-6"
 		placeholder={ input.Placeholder }
 	/>
 }
@@ -18,7 +18,7 @@ templ TextArea(input InputValues) {
 		maxlength={ input.MaxLength }
 		name={ input.Name }
 		rows={ input.Rows }
-		class="block w-full rounded-md border-0 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-sm sm:leading-6"
+		class="block w-full rounded-md border-0 py-2 text-gray-900 shadow-xs ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-sm sm:leading-6"
 		placeholder={ input.Placeholder }
 	></textarea>
 }
@@ -30,7 +30,7 @@ templ Checkbox(input InputValues, Id string) {
 			name={ input.Name }
 			value={ input.Value }
 			id={ Id }
-			class="size-4 rounded border-gray-300 text-gray-600 focus:ring-blue-500"
+			class="size-4 rounded-sm border-gray-300 text-gray-600 focus:ring-blue-500"
 		/>
 		<label for={ "tag-" + input.Value } class="ml-2 text-sm text-gray-900">
 			{ input.Value }

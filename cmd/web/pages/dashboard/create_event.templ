@@ -23,7 +23,7 @@ templ CreateEvent(pageData *domain.PageData, created bool, organizers []database
 				hx-post="/dashboard/events"
 				hx-target="#success-message"
 				hx-swap="innerHTML"
-				class="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl md:col-span-2"
+				class="bg-white shadow-xs ring-1 ring-gray-900/5 sm:rounded-xl md:col-span-2"
 			>
 				<div class="px-4 py-6 sm:p-8">
 					<div class="max-w-3xl">
@@ -80,7 +80,7 @@ templ CreateEvent(pageData *domain.PageData, created bool, organizers []database
 										// 		name="event__tags[]"
 										// 		value={ filter.Label }
 										// 		id={ "tag-" + filter.Label }
-										// 		class="h-4 w-4 rounded border-gray-300 text-gray-600 focus:ring-gray-600"
+										// 		class="h-4 w-4 rounded-sm border-gray-300 text-gray-600 focus:ring-gray-600"
 										// 	/>
 										// 	<label for={ "tag-" + filter.Label } class="ml-2 text-sm text-gray-900">
 										// 		{ filter.Label }

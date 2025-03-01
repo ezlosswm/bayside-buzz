@@ -3,13 +3,13 @@ package components
 import "bayside-buzz/internal/database"
 
 templ Card(event database.Event) {
-	<article class="relative overflow-hidden sm:rounded-lg shadow transition hover:shadow-lg">
+	<article class="cursor-pointer relative overflow-hidden sm:rounded-lg shadow-sm transition hover:shadow-lg">
 		<img
 			alt=""
 			src={ event.Imgpath }
 			class="absolute inset-0 h-full w-full object-cover"
 		/>
-		<div class="h-full relative bg-gradient-to-t from-gray-900/50 to-gray-900/25 pt-32 sm:pt-48 lg:pt-64">
+		<div class="h-full relative bg-linear-to-t from-gray-900/50 to-gray-900/25 pt-32 sm:pt-48 lg:pt-64">
 			<div class="p-4 sm:p-6">
 				<time datetime="2022-10-10" class="block text-xs text-white/90">{ event.Date.Time.Format("Jan 02, 2006") }</time>
 				<a href={ templ.URL(NewURL(event.ID)) }>

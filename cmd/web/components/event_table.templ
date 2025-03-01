@@ -37,7 +37,7 @@ templ Event(event database.Event) {
 		<td class="text-center p-2">{ event.Date.Time.Format("Jan 02, 2006") }</td>
 		<td class="p-1 hidden text-center sm:block">
 			<span
-				class="inline-flex overflow-hidden rounded-md border bg-white shadow-sm"
+				class="inline-flex overflow-hidden rounded-md border bg-white shadow-xs"
 			>
 				<a
 					href={ templ.URL(fmt.Sprintf("/dashboard/events/%v/edit", event.ID)) }

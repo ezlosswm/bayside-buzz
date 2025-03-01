@@ -29,19 +29,19 @@ templ Home(settings domain.Settings, events []database.Event, organizers []datab
 			<div class="grid lg:grid-cols-2 gap-8">
 				<div class="lg:col-span-2 space-y-7">
 					<div>
-						<h2 class="text-2xl font-bold mb-2 pl-4" hx-get="/organizers/all" hx-swap="outerHTML" hx-target="#allEvents">All Organizers</h2>
+						<h2 class="cursor-pointer text-2xl font-bold mb-2 pl-4" hx-get="/organizers/all" hx-swap="outerHTML" hx-target="#allEvents">All Organizers</h2>
 						@components.OrganizerList(organizers)
 					</div>
 					<div>
-						<h2 class="cursor-pointer text-2xl font-bold mb-2 pl-4">All Events</h2>
+						<h2 class="text-2xl font-bold mb-2 pl-4">All Events</h2>
                         @components.AllEvents(events)
 					</div>
 				</div>
 				<!-- Sidebar -->
 				<aside class="hidden space-y-8">
-					<div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+					<div class="bg-white p-6 rounded-lg shadow-xs border border-gray-200">
 						<h3 class="text-lg font-semibold mb-4">Sponsored</h3>
-						<div class="h-48 bg-gray-100 rounded flex items-center justify-center text-gray-500">
+						<div class="h-48 bg-gray-100 rounded-sm flex items-center justify-center text-gray-500">
 							Ad Space
 						</div>
 					</div>
