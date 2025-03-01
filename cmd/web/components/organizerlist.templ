@@ -1,6 +1,7 @@
 package components
 
 import "bayside-buzz/internal/database"
+import "fmt"
 
 templ OrganizerList(organizers []database.Organizer) {
 	<section class="p-4 max-w-5xl mx-auto">
@@ -15,8 +16,8 @@ templ OrganizerList(organizers []database.Organizer) {
 }
 
 templ OrganizerBubble(organizer database.Organizer) {
-	<div class="shadow-md-x rounded-lg flex flex-col items-center text-center">
+	<button hx-get={fmt.Sprintf("/organizers/%s", organizer.OrganizerName)} hx-swap="outerHTML" hx-target="#allEvents" class="shadow-md-x rounded-lg flex flex-col items-center text-center">
 		<img class="size-24 rounded-full" src={ organizer.ImgUrl } alt={ organizer.OrganizerName + " Cover Image" }/>
 		<p class="text-sm text-black/60">{ organizer.OrganizerName }</p>
-	</div>
+	</button>
 }

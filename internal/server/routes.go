@@ -2,11 +2,14 @@ package server
 
 import (
 	"context"
+	"fmt"
+	"log"
 	"log/slog"
 	"net/http"
 	"strconv"
 	"strings"
 
+	"bayside-buzz/cmd/web/components"
 	"bayside-buzz/cmd/web/pages"
 	"bayside-buzz/internal/domain"
 
@@ -28,12 +31,12 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.PathPrefix("/assets/").Handler(fileServer)
 
 	r.HandleFunc("/", s.HomePage).Methods(http.MethodGet)
+	r.HandleFunc("/organizers/{organizer}", s.FilterByOrganizer).Methods(http.MethodGet)
 	r.HandleFunc("/event/{id:[0-9]+}", s.EventPage)
 	r.HandleFunc("/contact", s.ContactPage).Methods(http.MethodGet)
 
 	r.HandleFunc("/login", s.LoginPage).Methods(http.MethodGet, http.MethodPost)
 	r.HandleFunc("/logout", s.HandleLogout).Methods(http.MethodPost)
-	r.HandleFunc("/register", s.RegisterPage).Methods(http.MethodGet, http.MethodPost)
 
 	dashboard := r.PathPrefix("/dashboard").Subrouter()
 	dashboard.HandleFunc("", s.Authenticate(s.HandleDashboard))
@@ -70,7 +73,7 @@ func (s *Server) HomePage(w http.ResponseWriter, r *http.Request) {
 			slog.Error("Error getting organizers", "error", err)
 		}
 
-		events, err := s.db.GetEventsWithTags(context.Background())
+		events, err := s.db.GetEvents(context.Background())
 		if err != nil {
 			slog.Error("Error getting events", "error", err)
 
@@ -86,12 +89,32 @@ func (s *Server) HomePage(w http.ResponseWriter, r *http.Request) {
 		ok := s.checkSession(r)
 		if !ok {
 			pages.Home(settings, events, organizers).Render(context.Background(), w)
-            return
+			return
 		}
 
 		settings.IsLoggedIn = true
 		pages.Home(settings, events, organizers).Render(context.Background(), w)
 	}
+}
+
+func (s *Server) FilterByOrganizer(w http.ResponseWriter, r *http.Request) {
+	orgParam := mux.Vars(r)["organizer"]
+	fmt.Printf("orgParam = %s\n", orgParam)
+
+	if orgParam == "all" {
+		allEvents, err := s.db.GetEvents(context.Background())
+		if err != nil {
+			log.Println("Error getting all events", "error", err)
+		}
+		components.AllEvents(allEvents).Render(context.Background(), w)
+	}
+
+	eventsByOrg, err := s.db.GetEventsByOrganizer(context.Background(), orgParam)
+	if err != nil {
+		log.Println("Error getting events by organizer", "error", err)
+	}
+
+		components.AllEvents(eventsByOrg).Render(context.Background(), w)
 }
 
 func (s *Server) EventPage(w http.ResponseWriter, r *http.Request) {
@@ -107,7 +130,7 @@ func (s *Server) EventPage(w http.ResponseWriter, r *http.Request) {
 	ok := s.checkSession(r)
 	if !ok {
 		pages.Event(settings, events).Render(context.Background(), w)
-        return
+		return
 	}
 
 	settings.IsLoggedIn = true
@@ -121,7 +144,7 @@ func (s *Server) ContactPage(w http.ResponseWriter, r *http.Request) {
 	ok := s.checkSession(r)
 	if !ok {
 		pages.Contact(settings).Render(context.Background(), w)
-        return
+		return
 	}
 
 	settings.IsLoggedIn = true

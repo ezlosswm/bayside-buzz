@@ -1902,6 +1902,10 @@ select {
     align-items: flex-start;
   }
 
+  .sm\:rounded-lg {
+    border-radius: 0.5rem;
+  }
+
   .sm\:rounded-xl {
     border-radius: 0.75rem;
   }

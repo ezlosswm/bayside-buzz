@@ -1,0 +1,15 @@
+package components
+
+import "bayside-buzz/internal/database" 
+
+templ AllEvents(events []database.Event) {
+    <section id="allEvents" class="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
+        if len(events) == 0 {
+            <p class="p-4 sm:p-6">No events found</p>
+        } else {
+            for _, event := range events {
+                @Card(event)
+            }
+        }
+    </section>
+}

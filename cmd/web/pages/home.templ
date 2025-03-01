@@ -7,7 +7,7 @@ import (
 	"bayside-buzz/internal/domain"
 )
 
-templ Home(settings domain.Settings, events []database.GetEventsWithTagsRow, organizers []database.Organizer) {
+templ Home(settings domain.Settings, events []database.Event, organizers []database.Organizer) {
 	@layouts.Layout(settings) {
 		<div class=" relative isolate w-full">
 			<img src="/assets/images/corozal-sign.jpg" loading="lazy" alt="Hero image" class=" -z-50 object-cover absolute w-full h-full"/>
@@ -29,16 +29,12 @@ templ Home(settings domain.Settings, events []database.GetEventsWithTagsRow, org
 			<div class="grid lg:grid-cols-2 gap-8">
 				<div class="lg:col-span-2 space-y-7">
 					<div>
-						<h2 class="text-2xl font-bold mb-2 pl-4">All Organizers</h2>
+						<h2 class="text-2xl font-bold mb-2 pl-4" hx-get="/organizers/all" hx-swap="outerHTML" hx-target="#allEvents">All Organizers</h2>
 						@components.OrganizerList(organizers)
 					</div>
 					<div>
-						<h2 class="text-2xl font-bold mb-2 pl-4">All Events</h2>
-						<section class="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
-							for _, event := range events {
-								@components.Card(event)
-							}
-						</section>
+						<h2 class="cursor-pointer text-2xl font-bold mb-2 pl-4">All Events</h2>
+                        @components.AllEvents(events)
 					</div>
 				</div>
 				<!-- Sidebar -->

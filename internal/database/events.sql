@@ -39,6 +39,26 @@ GROUP BY
 -- name: CountEvents :one
 SELECT COUNT(*) FROM events;
 
+-- name: GetEventsByOrganizerWithTags :many
+SELECT
+    e.id AS eventId,
+    e.title,
+    e.description,
+    e.date,
+    e.freq,
+    e.organizer,
+    e.imgPath,
+    e.userId,
+    COALESCE(string_agg(t.name, ','), '') AS tags
+FROM
+    events e
+LEFT JOIN
+    event_tags et ON e.id = et.eventId
+LEFT JOIN
+    tags t ON et.tagId = t.id
+WHERE
+    e.organizer = $1;
+
 -- name: GetEventsWithTags :many
 SELECT
     e.id AS eventId,
