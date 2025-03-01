@@ -6,7 +6,7 @@ import "fmt"
 templ OrganizerList(organizers []database.Organizer) {
 	<section class="p-2 sm:p-4 max-w-7xl w-full mx-auto">
 		<div
-			class="grid gap-3 grid-flow-col auto-cols-[29%] sm:auto-cols-[21%] overflow-x-auto overscroll-contain no-scrollbar"
+			class="grid gap-3 grid-flow-col auto-cols-[35%] sm:auto-cols-[29%] md:auto-cols-[21%] overflow-x-auto overscroll-contain no-scrollbar"
 		>
 			for _, organizer := range organizers {
 				@OrganizerBubble(organizer)
@@ -16,7 +16,7 @@ templ OrganizerList(organizers []database.Organizer) {
 }
 
 templ OrganizerBubble(organizer database.Organizer) {
-	<button hx-get={fmt.Sprintf("/organizers/%s", organizer.OrganizerName)} hx-swap="outerHTML" hx-target="#allEvents" class="shadow-md-x rounded-lg flex flex-col items-center text-center">
+	<button hx-get={ fmt.Sprintf("/organizers/%s", organizer.OrganizerName) } hx-swap="outerHTML" hx-target="#allEvents" class="shadow-md-x rounded-lg flex flex-col items-center text-center">
 		<img class="size-24 rounded-full" src={ organizer.ImgUrl } alt={ organizer.OrganizerName + " Cover Image" }/>
 		<p class="text-sm text-black/60">{ organizer.OrganizerName }</p>
 	</button>
