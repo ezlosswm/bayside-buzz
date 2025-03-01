@@ -4,14 +4,16 @@ nixPkgs = ["go", "templ", "nodejs"]
 [phases.install]
 cmds = [
     "go mod tidy",
-    "npm install -D tailwindcss postcss autoprefixer",   # Install Tailwind and its dependencies
+    # "npm install -D tailwindcss postcss autoprefixer",   # Install Tailwind and its dependencies
+    "npm install tailwindcss @tailwindcss/cli"
 ]
 
 [phases.build]
 cmds = [
     "templ generate",
     "go build -o out ./cmd/api/main.go",
-    "npx tailwindcss -i cmd/web/assets/css/input.css -o cmd/web/assets/css/output.css"
+    # "npx tailwindcss -i cmd/web/assets/css/input.css -o cmd/web/assets/css/output.css"
+    "npx @tailwindcss/cli -i cmd/web/assets/css/input.css -o cmd/web/assets/css/output.css"
 ]
 
 [start]
