@@ -6,10 +6,12 @@ import "fmt"
 templ OrganizerList(organizers []database.Organizer) {
 	<section class="p-2 sm:p-4 max-w-7xl w-full mx-auto">
 		<div
-			class="grid gap-3 grid-flow-col auto-cols-auto sm:auto-cols-[29%] md:auto-cols-[21%] overflow-x-auto overscroll-contain no-scrollbar"
+			class="flex gap-3 w-full overflow-x-auto snap-x snap-mandatory scroll-smooth overscroll-contain no-scrollbar"
 		>
 			for _, organizer := range organizers {
-				@OrganizerBubble(organizer)
+				<div class="snap-center shrink-0 first:ml-4 last:mr-4">
+					@OrganizerBubble(organizer)
+				</div>
 			}
 		</div>
 	</section>
