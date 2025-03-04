@@ -2,6 +2,45 @@
 
 Bayside Buzz is an event listing website with a dashboard for new listings.
 
+## Installation
+
+_Requirements: make, docker, air, goose, sqlc, gorilla/mux/ godotenv_
+
+1. Ensure all depencies are installed
+
+```Shell
+go mod tidy
+```
+
+2. Copy `env.example` to `.env` file.
+
+```Shell
+cp env.example .env
+```
+
+3. Get [Appwrite](https://appwrite.io/docs) API Key, Project ID & Bucket ID.
+
+4. Build and run PostgresSQL server
+
+```Shell
+docker build -t bayside-buzz-postgres .
+
+docker run -p 5432:5432 -e POSTGRES_PASSWORD=mypassword bayside-buzz-postgres
+```
+
+5. Build and run the API server
+
+```Shell
+# Dev
+make watch
+
+# Build
+make build
+
+# Run
+./main
+```
+
 ## Pages
 
 Home
