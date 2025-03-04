@@ -16,7 +16,6 @@ templ Home(settings domain.Settings, events []database.Event, organizers []datab
 					<h1 class="mb-12 text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
 						Welcome to Bayside Buzz
 					</h1>
-					// <p class="mt-6 text-lg leading-8 text-gray-800">Your one-stop solution for managing organizations and events</p>
 					@components.Button("isRedirect", false) {
 						<a href="/contact" aria-label="Contact us" class="flex items-center justify-center gap-x-2">
 							Contact us <span aria-hidden="true" aria-label="Right arrow">→</span>
@@ -26,26 +25,15 @@ templ Home(settings domain.Settings, events []database.Event, organizers []datab
 			</div>
 		</div>
 		<main class="relative w-full max-w-7xl mx-auto sm:px-6 lg:px-8 py-12">
-			<div class="grid lg:grid-cols-2 gap-8">
-				<div class="lg:col-span-2 space-y-7">
-					<div>
-						<h2 class="cursor-pointer text-2xl font-bold mb-2 pl-4" hx-get="/organizers/all" hx-swap="outerHTML" hx-target="#allEvents">All Organizers</h2>
-						@components.OrganizerList(organizers)
-					</div>
-					<div>
-						<h2 class="text-2xl font-bold mb-2 pl-4">All Events</h2>
-						@components.AllEvents(events)
-					</div>
+			<div class=" space-y-7">
+				<div>
+					<h2 class="cursor-pointer text-2xl font-bold mb-2 pl-4" hx-get="/organizers/all" hx-swap="outerHTML" hx-target="#allEvents">All Organizers</h2>
+					@components.OrganizerList(organizers)
 				</div>
-				<!-- Sidebar -->
-				<aside class="hidden space-y-8">
-					<div class="bg-white p-6 rounded-lg shadow-xs border border-gray-200">
-						<h3 class="text-lg font-semibold mb-4">Sponsored</h3>
-						<div class="h-48 bg-gray-100 rounded-sm flex items-center justify-center text-gray-500">
-							Ad Space
-						</div>
-					</div>
-				</aside>
+				<div>
+					<h2 class="text-2xl font-bold mb-2 pl-4">All Events</h2>
+					@components.AllEvents(events)
+				</div>
 			</div>
 		</main>
 	}

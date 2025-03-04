@@ -29,6 +29,7 @@ writeup.md
 # Project build
 main
 *templ.go
+Dockerfile
 
 # Images 
 *.PNG
